@@ -24,18 +24,20 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
+import { toast } from "sonner";
 
 const stripePromise = loadStripe(
 	process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!,
 );
 
+// TODO: Change this to the actual price
 export const calculatePrice = (count: number, isAnnual = false) => {
 	if (isAnnual) {
-		if (count <= 1) return 45.9;
-		return 35.7 * count;
+		if (count <= 1) return 2;
+		return 2 * count;
 	}
-	if (count <= 1) return 4.5;
-	return count * 3.5;
+	if (count <= 1) return 1;
+	return count * 1.3;
 };
 export const ShowBilling = () => {
 	const { data: servers } = api.server.count.useQuery();
@@ -47,7 +49,7 @@ export const ShowBilling = () => {
 	const { mutateAsync: createCustomerPortalSession } =
 		api.stripe.createCustomerPortalSession.useMutation();
 
-	const [serverQuantity, setServerQuantity] = useState(3);
+	const [serverQuantity, setServerQuantity] = useState(1);
 	const [isAnnual, setIsAnnual] = useState(false);
 
 	const handleCheckout = async (productId: string) => {
@@ -283,12 +285,19 @@ export const ShowBilling = () => {
 																<Button
 																	variant="secondary"
 																	className="w-full"
-																	onClick={async () => {
-																		const session =
-																			await createCustomerPortalSession();
-
-																		window.open(session.url);
-																	}}
+                            onClick={async () => {
+                                try {
+                                    const session = await createCustomerPortalSession();
+                                    const url = (session as any)?.url || (session as { url?: string })?.url;
+                                    if (url) {
+                                        window.open(url, "_blank", "noopener,noreferrer");
+                                    } else {
+                                        toast.error("Could not open Stripe portal. Please try again later.");
+                                    }
+                                } catch (e) {
+                                    toast.error("Failed to create Stripe portal session.");
+                                }
+                            }}
 																>
 																	Manage Subscription
 																</Button>

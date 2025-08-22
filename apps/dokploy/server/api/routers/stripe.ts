@@ -91,6 +91,10 @@ export const stripeRouter = createTRPCRouter({
 		const user = await findUserById(ctx.user.id);
 
 		if (!user.stripeCustomerId) {
+			console.error(
+				"Stripe portal error: Missing stripeCustomerId for user",
+				{ userId: user.id, email: (user as any)?.email },
+			);
 			throw new TRPCError({
 				code: "BAD_REQUEST",
 				message: "Stripe Customer ID not found",
@@ -103,13 +107,29 @@ export const stripeRouter = createTRPCRouter({
 		});
 
 		try {
-			const session = await stripe.billingPortal.sessions.create({
-				customer: stripeCustomerId,
-				return_url: `${WEBSITE_URL}/dashboard/settings/billing`,
+			console.log("Creating Stripe customer portal session", {
+				userId: user.id,
+				stripeCustomerId,
+				websiteUrl: WEBSITE_URL,
+				mode:
+					process.env.STRIPE_SECRET_KEY?.startsWith("sk_live_")
+						? "live"
+						: "test",
 			});
-
+            const session = await stripe.billingPortal.sessions.create({
+                customer: stripeCustomerId,
+                return_url: `${WEBSITE_URL}/dashboard/settings/billing`,
+                ...(process.env.STRIPE_PORTAL_CONFIGURATION_ID
+                    ? { configuration: process.env.STRIPE_PORTAL_CONFIGURATION_ID }
+                    : {}),
+            });
+			console.log("Stripe customer portal session created", {
+				sessionId: session.id,
+				urlPresent: Boolean(session.url),
+			});
 			return { url: session.url };
 		} catch (_) {
+			console.error("Stripe portal creation failed", _);
 			return {
 				url: "",
 			};

@@ -203,9 +203,8 @@ const { handler, api } = betterAuth({
 			async sendInvitationEmail(data, _request) {
 				if (IS_CLOUD) {
 					const host =
-						process.env.NODE_ENV === "development"
-							? "http://localhost:3000"
-							: "https://app.dokploy.com";
+						process.env.PUBLIC_APP_URL ||
+						(process.env.NODE_ENV === "development" ? "http://localhost:3000" : "");
 					const inviteLink = `${host}/invitation?token=${data.id}`;
 
 					await sendEmail({

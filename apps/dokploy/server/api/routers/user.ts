@@ -412,9 +412,10 @@ export const userRouter = createTRPCRouter({
 
 			const admin = await findAdmin();
 			const host =
-				process.env.NODE_ENV === "development"
+				process.env.PUBLIC_APP_URL ||
+				(process.env.NODE_ENV === "development"
 					? "http://localhost:3000"
-					: admin.user.host;
+					: admin.user.host);
 			const inviteLink = `${host}/invitation?token=${input.invitationId}`;
 
 			const organization = await findOrganizationById(
