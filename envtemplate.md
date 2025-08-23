@@ -7,16 +7,9 @@ This document lists every environment variable referenced in the repository, gro
 - `NODE_ENV`: Environment mode (`development` or `production`). Required.
 - `PORT`: HTTP port for the Dokploy web app (default: `3000`). Optional.
 - `HOST`: Address to bind the web server (default: `0.0.0.0`). Optional.
-- `IS_CLOUD`: Enable multi-tenant SaaS behavior when set to `true`. Optional.
-- `PUBLIC_APP_URL`: Public base URL used in emails/links (e.g., `https://your-domain.com`). Required in cloud mode.
+- `IS_CLOUD`: Enable multi-tenant SaaS behavior when set to `true` Required.
+- `PUBLIC_APP_URL`: Public base URL used in emails/links (e.g., `https://your-domain.com` or localhost:3000). Required in cloud mode.
 - `TURBOPACK`: Set to `1` to enable Next.js Turbopack in development. Optional.
-
-## Auth & Social Login
-- `GITHUB_CLIENT_ID`: GitHub OAuth client ID. Required if GitHub login is enabled.
-- `GITHUB_CLIENT_SECRET`: GitHub OAuth client secret. Required if GitHub login is enabled.
-- `GOOGLE_CLIENT_ID`: Google OAuth client ID. Required if Google login is enabled.
-- `GOOGLE_CLIENT_SECRET`: Google OAuth client secret. Required if Google login is enabled.
-- `USER_ADMIN_ID`: Internal user ID granted admin plugin privileges. Optional.
 
 ## Email & Notifications
 - `SMTP_SERVER`: SMTP server hostname. Required in cloud mode for email flows.
@@ -25,6 +18,14 @@ This document lists every environment variable referenced in the repository, gro
 - `SMTP_PASSWORD`: SMTP password or app password. Required in cloud mode for email flows.
 - `SMTP_FROM_ADDRESS`: Sender email used in outbound messages. Required in cloud mode.
 - `DISCORD_WEBHOOK_URL`: Discord webhook for notifications (welcome, etc.). Optional.
+
+## Auth & Social Login
+- `GITHUB_CLIENT_ID`: GitHub OAuth client ID. Required if GitHub login is enabled.
+- `GITHUB_CLIENT_SECRET`: GitHub OAuth client secret. Required if GitHub login is enabled.
+- `GOOGLE_CLIENT_ID`: Google OAuth client ID. Required if Google login is enabled.
+- `GOOGLE_CLIENT_SECRET`: Google OAuth client secret. Required if Google login is enabled.
+- `USER_ADMIN_ID`: Internal user ID granted admin plugin privileges. Optional.
+
 
 ## Redis, Jobs, and Internal Services
 - `REDIS_HOST`: Hostname for BullMQ worker used by Dokploy (production default: `dokploy-redis`). Optional; required if running the deployments worker from Dokploy.
