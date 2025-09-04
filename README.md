@@ -1,120 +1,320 @@
+# Dokploy - Self-Hosted Platform as a Service
+
 <div align="center">
-  <a href="https://dokploy.com">
-    <img src=".github/sponsors/logo.png" alt="Dokploy - Open Source Alternative to Vercel, Heroku and Netlify." width="100%"  />
-  </a>
+  <img src=".github/sponsors/logo.png" alt="Dokploy - Open Source Alternative to Vercel, Heroku and Netlify." width="100%"  />
   </br>
   </br>
-  <p>Join us on Discord for help, feedback, and discussions!</p>
-  <a href="https://discord.gg/2tBnJ3jDJc">
-    <img src="https://discordapp.com/api/guilds/1234073262418563112/widget.png?style=banner2" alt="Discord Shield"/>
-  </a>
+  <p>Self-hosted Platform as a Service (PaaS) for deploying applications and managing databases</p>
 </div>
-<br />
 
-Dokploy is a free, self-hostable Platform as a Service (PaaS) that simplifies the deployment and management of applications and databases.
+## 🚀 Quick Start
 
-## ✨ Features
+This README documents the setup and configuration of Dokploy on your local development environment.
 
-Dokploy includes multiple features to make your life easier.
+### Prerequisites
 
-- **Applications**: Deploy any type of application (Node.js, PHP, Python, Go, Ruby, etc.).
-- **Databases**: Create and manage databases with support for MySQL, PostgreSQL, MongoDB, MariaDB, and Redis.
-- **Backups**: Automate backups for databases to an external storage destination.
-- **Docker Compose**: Native support for Docker Compose to manage complex applications.
-- **Multi Node**: Scale applications to multiple nodes using Docker Swarm to manage the cluster.
-- **Templates**: Deploy open-source templates (Plausible, Pocketbase, Calcom, etc.) with a single click.
-- **Traefik Integration**: Automatically integrates with Traefik for routing and load balancing.
-- **Real-time Monitoring**: Monitor CPU, memory, storage, and network usage for every resource.
-- **Docker Management**: Easily deploy and manage Docker containers.
-- **CLI/API**: Manage your applications and databases using the command line or through the API.
-- **Notifications**: Get notified when your deployments succeed or fail (via Slack, Discord, Telegram, Email, etc.).
-- **Multi Server**: Deploy and manage your applications remotely to external servers.
-- **Self-Hosted**: Self-host Dokploy on your VPS.
+- **Node.js**: ^20.16.0
+- **pnpm**: >=9.12.0
+- **Docker**: For running Redis and PostgreSQL
+- **Linux/Unix**: Tested on Ubuntu/Debian systems
 
-## 🚀 Getting Started
+### Installation
 
-To get started, run the following command on a VPS:
+1. **Clone and Install Dependencies**
+   ```bash
+   git clone <your-repo-url>
+   cd dokploy
+   pnpm install
+   ```
 
-Want to skip the installation process? [Try the Dokploy Cloud](https://app.dokploy.com).
+2. **Start Required Services**
+   ```bash
+   # Start Redis
+   docker run -d --name dokploy-redis -p 6379:6379 redis:7-alpine
+   
+   # Start PostgreSQL
+   docker run -d --name dokploy-postgres \
+     -e POSTGRES_USER=dokploy \
+     -e POSTGRES_PASSWORD=amukds4wi9001583845717ad2 \
+     -e POSTGRES_DB=dokploy \
+     -p 5432:5432 postgres:15
+   ```
 
-```bash
-curl -sSL https://dokploy.com/install.sh | sh
+3. **Run the Application**
+   ```bash
+   DATABASE_URL=postgres://dokploy:amukds4wi9001583845717ad2@localhost:5432/dokploy \
+   NODE_ENV=development \
+   PORT=3000 \
+   HOST=0.0.0.0 \
+   IS_CLOUD=false \
+   PUBLIC_APP_URL=http://localhost:3000 \
+   STRIPE_ENABLED=false \
+   pnpm run dokploy:dev
+   ```
+
+4. **Access the Application**
+   - Open your browser and navigate to: **http://localhost:3000**
+   - Login with your admin credentials
+
+## 🔐 Authentication
+
+### Admin Account
+
+- **Email**: `johnsdanlami@gmail.com`
+- **Role**: Owner (Full admin privileges)
+- **Organization**: "My Organization"
+
+### First-Time Setup
+
+If you need to create a new admin account:
+
+1. **Register the first user** through the web interface
+2. **Update user status** in the database:
+   ```sql
+   UPDATE user_temp 
+   SET "isRegistered" = true, email_verified = true 
+   WHERE email = 'your-email@example.com';
+   ```
+
+## 🗄️ Database Schema
+
+### Core Tables
+
+| Table | Purpose | Records |
+|-------|---------|---------|
+| `user_temp` | User accounts and profiles | 1 |
+| `organization` | Organizations/workspaces | 1 |
+| `member` | User memberships and roles | 1 |
+| `server` | Server configurations | 1 |
+| `ssh-key` | SSH key management | 1 |
+
+### Current Data Summary
+
+- **Users**: 1 (admin account)
+- **Organizations**: 1 ("My Organization")
+- **Projects**: 0 (none created yet)
+- **Applications**: 0 (none deployed yet)
+- **Servers**: 1 (example server configured)
+
+## 🖥️ Server Management
+
+### Adding Servers
+
+Dokploy supports multiple servers for deploying applications and databases.
+
+#### Prerequisites
+
+1. **SSH Key Pair**: Required for secure server access
+2. **Server Access**: IP address, port, username
+3. **Docker**: Must be installed on target servers
+
+#### SSH Key Setup
+
+1. **Generate SSH Key Pair**:
+   ```bash
+   ssh-keygen -t rsa -b 4096 -f ~/.ssh/dokploy_key -N ""
+   ```
+
+2. **Add Public Key to Server**:
+   ```bash
+   # On your target server
+   echo "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDL8+DCyq0JzQmrLFr4fCjX9h2ZEKeBz8fAYh6TcS34uY1iuXM8RIgzpLfNkGvoNYtIuNwjhNn4MUODH97qV8E9dZXA5QT5zwLK3v/kfjfgUKALN62XMSSEF6EllbQxmn65SXn5I0RicanFWKt2z4+HR4kNz1hoMxag+S784g+rke7JCCfuHPR3GtYbNPH7Y9ZieYJiRy6U/O18FaUZvRb6kSVlgUP3L1KFjLZ6SeHiRk0A2/1zrAGtdHhiZgm8febnbMyNJ/knfhhBzAeTCZ0BNrC3bG42LiMx1GNGR8x2tjjruTifOeT7Si798sw8RdceoNIOkR2kjp5oWJY5PuAsuuHLhZ3AvnkB6yXcF6dx/TU9MfB16bE2feMVe2JJnwDWmuaRvhl4i74PZD1sD4L/URBFlqfJ1u5IoFAwYJvqflyZH65eSyyRgnl80uTHDXNkJw8dtLBmUixha0AkbJazMtKbwvB5M8ukQvQfJVFNUgoza2F0VwWSx06nmizq7J9ktHw0+woalEBii98pT+j14QMWIKKbIbQkQ8WThfWSLra1SEVfgpfpXAWpGylxanjMx4BCvphtJhYqV4AoIr8bnZ6bcZy+El3pXOkB0HDPmz8wB8q/fYWQ76Bda1Hff0ErJyLC9JCOGodAJCL5z3learIayZwfC4A2HDHj98epcQ== john-danlami@john-danlami-ThinkPad-X1-Carbon-7th" >> ~/.ssh/authorized_keys
+   ```
+
+#### Adding Server via Web Interface
+
+1. **Navigate to**: Settings → Servers
+2. **Click**: "Add Server"
+3. **Fill in details**:
+   - **Name**: Server name (e.g., "Production Server")
+   - **Description**: Optional description
+   - **IP Address**: Server IP address
+   - **Port**: SSH port (usually 22)
+   - **Username**: SSH username (usually root)
+   - **SSH Key**: Select "Dokploy Server Key"
+
+#### Adding Server via Database
+
+```sql
+INSERT INTO server (
+    "serverId", 
+    name, 
+    description, 
+    "ipAddress", 
+    port, 
+    username, 
+    "appName", 
+    "enableDockerCleanup", 
+    "createdAt", 
+    "sshKeyId", 
+    "serverStatus", 
+    command, 
+    "metricsConfig", 
+    "organizationId"
+) VALUES (
+    gen_random_uuid(),
+    'Your Server Name',
+    'Your server description',
+    'YOUR_SERVER_IP',
+    22,
+    'root',
+    'your-server-app',
+    false,
+    NOW(),
+    '3650a075-85d0-4f64-808c-6fae240286bf', -- SSH Key ID
+    'active',
+    '',
+    '{"server":{"type":"Remote","refreshRate":60,"port":4500,"token":"","urlCallback":"","cronJob":"","retentionDays":2,"thresholds":{"cpu":0,"memory":0}},"containers":{"refreshRate":60,"services":{"include":[],"exclude":[]}}}',
+    'NR_EBxF1R2TbieVBCau1o' -- Organization ID
+);
 ```
 
-For detailed documentation, visit [docs.dokploy.com](https://docs.dokploy.com).
+## 🛠️ Features
 
-## ♥️ Sponsors
+### Applications
+- Deploy any type of application (Node.js, PHP, Python, Go, Ruby, etc.)
+- Automatic containerization with Docker
+- Environment variable management
+- Custom domains and SSL certificates
+- Auto-scaling capabilities
 
-🙏 We're deeply grateful to all our sponsors who make Dokploy possible! Your support helps cover the costs of hosting, testing, and developing new features.
+### Databases
+- **MySQL**: Relational database management
+- **PostgreSQL**: Advanced relational database
+- **MongoDB**: NoSQL document database
+- **Redis**: In-memory data structure store
+- **MariaDB**: MySQL alternative
 
-[Dokploy Open Collective](https://opencollective.com/dokploy)
+### Infrastructure
+- **Docker Compose**: Native support for complex applications
+- **Multi-Node**: Scale applications using Docker Swarm
+- **Traefik Integration**: Automatic load balancing and routing
+- **Real-time Monitoring**: CPU, memory, storage, and network usage
 
-[Github Sponsors](https://github.com/sponsors/Siumauricio)
+### Security
+- **SSH Key Management**: Secure server access
+- **Role-based Access Control**: User permissions and roles
+- **Two-Factor Authentication**: Enhanced security
+- **API Key Management**: Programmatic access
 
-<!-- Hero Sponsors 🎖 -->
+## 📊 Monitoring & Management
 
-<!-- Add Hero Sponsors here -->
+### Real-time Monitoring
+- Server resource usage (CPU, Memory, Disk, Network)
+- Container statistics
+- Application performance metrics
+- Custom alerting and notifications
 
-### Hero Sponsors 🎖
+### Backup & Recovery
+- Automated database backups
+- Volume backup management
+- Scheduled backup jobs
+- One-click restore functionality
 
-<div>
-  <a href="https://www.hostinger.com/vps-hosting?ref=dokploy"><img src=".github/sponsors/hostinger.jpg" alt="Hostinger" width="300"/></a>
-  <a href="https://www.lxaer.com/?ref=dokploy"><img src=".github/sponsors/lxaer.png" alt="LX Aer" width="100"/></a>
-</div>
+### Notifications
+- **Email**: SMTP integration
+- **Slack**: Webhook notifications
+- **Discord**: Channel notifications
+- **Telegram**: Bot notifications
+- **Gotify**: Push notifications
 
-<!-- Premium Supporters 🥇 -->
+## 🔧 Configuration
 
-<!-- Add Premium Supporters here -->
+### Environment Variables
 
-### Premium Supporters 🥇
+| Variable | Description | Required | Default |
+|----------|-------------|----------|---------|
+| `DATABASE_URL` | PostgreSQL connection string | Yes | - |
+| `NODE_ENV` | Environment mode | Yes | development |
+| `PORT` | HTTP port | No | 3000 |
+| `HOST` | Server bind address | No | 0.0.0.0 |
+| `IS_CLOUD` | Multi-tenant mode | Yes | false |
+| `PUBLIC_APP_URL` | Public base URL | Yes | http://localhost:3000 |
+| `STRIPE_ENABLED` | Enable billing | No | true |
 
-<div>
-  <a href="https://supafort.com/?ref=dokploy"><img src="https://supafort.com/build/q-4Ht4rBZR.webp" alt="Supafort.com" width="300"/></a>
-  <a href="https://agentdock.ai/?ref=dokploy"><img src=".github/sponsors/agentdock.png" alt="agentdock.ai" width="100"/></a>
-</div>
+### Database Configuration
 
-<!-- Elite Contributors 🥈 -->
+- **Host**: localhost:5432
+- **Database**: dokploy
+- **Username**: dokploy
+- **Password**: amukds4wi9001583845717ad2
 
-<!-- Add Elite Contributors here -->
+### Redis Configuration
 
-### Elite Contributors 🥈
+- **Host**: localhost:6379
+- **Port**: 6379
+- **Container**: dokploy-redis
 
-<div>
-  <a href="https://americancloud.com/?ref=dokploy"><img src=".github/sponsors/american-cloud.png" alt="AmericanCloud" width="300"/></a>
-  <a href="https://tolgee.io/?utm_source=github_dokploy&utm_medium=banner&utm_campaign=dokploy"><img src="https://dokploy.com/tolgee-logo.png" alt="Tolgee" width="100"/></a>
-</div>
+## 🚀 Deployment
 
-### Supporting Members 🥉
+### Local Development
 
-<div>
+```bash
+# Start services
+docker start dokploy-redis dokploy-postgres
 
-  <a href="https://cloudblast.io/?ref=dokploy"><img src="https://cloudblast.io/img/logo-icon.193cf13e.svg" width="250px" alt="Cloudblast.io"/></a>
+# Run application
+pnpm run dokploy:dev
+```
 
-  <a href="https://synexa.ai/?ref=dokploy"><img src=".github/sponsors/synexa.png" width="65px" alt="Synexa"/></a>
-</div>
+### Production Deployment
 
-### Community Backers 🤝
+1. **Set up production environment variables**
+2. **Configure SSL certificates**
+3. **Set up monitoring and backups**
+4. **Deploy using Docker or traditional hosting**
 
-#### Organizations:
+## 📝 API Documentation
 
-[Sponsors on Open Collective](https://opencollective.com/dokploy)
+Dokploy provides a comprehensive API for programmatic access:
 
-#### Individuals:
-
-[![Individual Contributors on Open Collective](https://opencollective.com/dokploy/individuals.svg?width=890)](https://opencollective.com/dokploy)
-
-### Contributors 🤝
-
-<a href="https://github.com/dokploy/dokploy/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=dokploy/dokploy" alt="Contributors" />
-</a>
-
-## 📺 Video Tutorial
-
-<a href="https://youtu.be/mznYKPvhcfw">
-  <img src="https://dokploy.com/banner.png" alt="Watch the video" width="400"/>
-</a>
+- **REST API**: Standard HTTP endpoints
+- **tRPC**: Type-safe API with automatic documentation
+- **WebSocket**: Real-time communication
+- **CLI**: Command-line interface
 
 ## 🤝 Contributing
 
-Check out the [Contributing Guide](CONTRIBUTING.md) for more information.
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Add tests if applicable
+5. Submit a pull request
+
+## 📄 License
+
+This project is licensed under the Apache-2.0 License.
+
+## 🆘 Support
+
+- **Documentation**: [docs.dokploy.com](https://docs.dokploy.com)
+- **Discord**: [Join our community](https://discord.gg/2tBnJ3jDJc)
+- **Issues**: [GitHub Issues](https://github.com/dokploy/dokploy/issues)
+
+## 🔄 Updates
+
+To update Dokploy:
+
+1. **Pull latest changes**:
+   ```bash
+   git pull origin main
+   ```
+
+2. **Update dependencies**:
+   ```bash
+   pnpm install
+   ```
+
+3. **Run migrations**:
+   ```bash
+   pnpm run migration:run
+   ```
+
+4. **Restart the application**:
+   ```bash
+   pnpm run dokploy:dev
+   ```
+
+---
+
+**Dokploy** - Simplifying deployment and infrastructure management since 2024.

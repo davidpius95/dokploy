@@ -19,6 +19,7 @@ import {
 } from "@/server/db/schema";
 import {
 	IS_CLOUD,
+	STRIPE_ENABLED,
 	createServer,
 	defaultCommand,
 	deleteServer,
@@ -46,7 +47,7 @@ export const serverRouter = createTRPCRouter({
 			try {
 				const user = await findUserById(ctx.user.ownerId);
 				const servers = await findServersByUserId(user.id);
-				if (IS_CLOUD && servers.length >= user.serversQuantity) {
+				if (IS_CLOUD && STRIPE_ENABLED && servers.length >= user.serversQuantity) {
 					throw new TRPCError({
 						code: "BAD_REQUEST",
 						message: "You cannot create more servers",

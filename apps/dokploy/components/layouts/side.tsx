@@ -1029,10 +1029,10 @@ export default function Page({ children }: Props) {
 						{dokployVersion && (
 							<>
 								<div className="px-3 text-xs text-muted-foreground text-center group-data-[collapsible=icon]:hidden">
-									Version {dokployVersion}
+									GuildServer v{dokployVersion}
 								</div>
 								<div className="hidden text-xs text-muted-foreground text-center group-data-[collapsible=icon]:block">
-									{dokployVersion}
+									GS v{dokployVersion}
 								</div>
 							</>
 						)}

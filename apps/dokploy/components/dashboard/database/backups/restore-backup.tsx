@@ -223,7 +223,7 @@ export const RestoreBackup = ({
 		defaultValues: {
 			destinationId: "",
 			backupFile: "",
-			databaseName: databaseType === "web-server" ? "dokploy" : "",
+							databaseName: databaseType === "web-server" ? "guildserver" : "",
 			databaseType:
 				backupType === "compose" ? ("postgres" as DatabaseType) : databaseType,
 			backupType: backupType,

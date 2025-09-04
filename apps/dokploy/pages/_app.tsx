@@ -16,63 +16,63 @@ import type { ReactElement, ReactNode } from "react";
 const inter = Inter({ subsets: ["latin"] });
 
 export type NextPageWithLayout<P = {}, IP = P> = NextPage<P, IP> & {
-	getLayout?: (page: ReactElement) => ReactNode;
-	theme?: string;
+  getLayout?: (page: ReactElement) => ReactNode;
+  theme?: string;
 };
 
 type AppPropsWithLayout = AppProps & {
-	Component: NextPageWithLayout;
+  Component: NextPageWithLayout;
 };
 
 const MyApp = ({
-	Component,
-	pageProps: { ...pageProps },
+  Component,
+  pageProps: { ...pageProps },
 }: AppPropsWithLayout) => {
-	const getLayout = Component.getLayout ?? ((page) => page);
+  const getLayout = Component.getLayout ?? ((page) => page);
 
-	return (
-		<>
-			<style jsx global>
-				{`
-					:root {
-						--font-inter: ${inter.style.fontFamily};
-					}
-				`}
-			</style>
-			<Head>
-				<title>Dokploy</title>
-			</Head>
-			{process.env.NEXT_PUBLIC_UMAMI_HOST &&
-				process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID && (
-					<Script
-						src={process.env.NEXT_PUBLIC_UMAMI_HOST}
-						data-website-id={process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID}
-					/>
-				)}
+  return (
+    <>
+      <style jsx global>
+        {`
+          :root {
+            --font-inter: ${inter.style.fontFamily};
+          }
+        `}
+      </style>
+      <Head>
+        <title>GuildServer</title>
+      </Head>
+      {process.env.NEXT_PUBLIC_UMAMI_HOST &&
+        process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID && (
+          <Script
+            src={process.env.NEXT_PUBLIC_UMAMI_HOST}
+            data-website-id={process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID}
+          />
+        )}
 
-			<ThemeProvider
-				attribute="class"
-				defaultTheme="system"
-				enableSystem
-				disableTransitionOnChange
-				forcedTheme={Component.theme}
-			>
-				<Toaster richColors />
-				<SearchCommand />
-				{getLayout(<Component {...pageProps} />)}
-			</ThemeProvider>
-		</>
-	);
+      <ThemeProvider
+        attribute="class"
+        defaultTheme="system"
+        enableSystem
+        disableTransitionOnChange
+        forcedTheme={Component.theme}
+      >
+        <Toaster richColors />
+        <SearchCommand />
+        {getLayout(<Component {...pageProps} />)}
+      </ThemeProvider>
+    </>
+  );
 };
 
 export default api.withTRPC(
-	appWithTranslation(MyApp, {
-		i18n: {
-			defaultLocale: "en",
-			locales: Object.values(Languages).map((language) => language.code),
-			localeDetection: false,
-		},
-		fallbackLng: "en",
-		keySeparator: false,
-	}),
+  appWithTranslation(MyApp, {
+    i18n: {
+      defaultLocale: "en",
+      locales: Object.values(Languages).map((language) => language.code),
+      localeDetection: false,
+    },
+    fallbackLng: "en",
+    keySeparator: false,
+  })
 );

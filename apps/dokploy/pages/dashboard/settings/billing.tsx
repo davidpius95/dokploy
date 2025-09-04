@@ -2,7 +2,7 @@ import { ShowBilling } from "@/components/dashboard/settings/billing/show-billin
 import { DashboardLayout } from "@/components/layouts/dashboard-layout";
 
 import { appRouter } from "@/server/api/root";
-import { IS_CLOUD } from "@dokploy/server/constants";
+import { IS_CLOUD, STRIPE_ENABLED } from "@dokploy/server/constants";
 import { validateRequest } from "@dokploy/server/lib/auth";
 import { createServerSideHelpers } from "@trpc/react-query/server";
 import type { GetServerSidePropsContext } from "next";
@@ -21,7 +21,7 @@ Page.getLayout = (page: ReactElement) => {
 export async function getServerSideProps(
 	ctx: GetServerSidePropsContext<{ serviceId: string }>,
 ) {
-	if (!IS_CLOUD) {
+	if (!IS_CLOUD || !STRIPE_ENABLED) {
 		return {
 			redirect: {
 				permanent: true,

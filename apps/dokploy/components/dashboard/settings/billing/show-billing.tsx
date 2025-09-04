@@ -12,6 +12,7 @@ import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
 import { api } from "@/utils/api";
+import { STRIPE_ENABLED } from "@dokploy/server/constants";
 import { loadStripe } from "@stripe/stripe-js";
 import clsx from "clsx";
 import {
@@ -43,6 +44,31 @@ export const ShowBilling = () => {
 	const { data: servers } = api.server.count.useQuery();
 	const { data: admin } = api.user.get.useQuery();
 	const { data, isLoading } = api.stripe.getProducts.useQuery();
+
+	if (!STRIPE_ENABLED) {
+		return (
+			<div className="w-full">
+				<Card className="h-full bg-sidebar p-2.5 rounded-xl max-w-5xl mx-auto">
+					<div className="rounded-xl bg-background shadow-md">
+						<CardHeader>
+							<CardTitle className="text-xl flex flex-row gap-2">
+								<CreditCard className="size-6 text-muted-foreground self-center" />
+								Billing
+							</CardTitle>
+							<CardDescription>Billing is disabled for this instance</CardDescription>
+						</CardHeader>
+						<CardContent className="space-y-4 py-8 border-t">
+							<div className="text-center">
+								<p className="text-muted-foreground">
+									Stripe billing has been disabled. You can use all features without any restrictions.
+								</p>
+							</div>
+						</CardContent>
+					</div>
+				</Card>
+			</div>
+		);
+	}
 	const { mutateAsync: createCheckoutSession } =
 		api.stripe.createCheckoutSession.useMutation();
 

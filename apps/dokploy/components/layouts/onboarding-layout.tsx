@@ -18,7 +18,7 @@ export const OnboardingLayout = ({ children }: Props) => {
 					className="relative z-20 flex items-center text-lg font-medium gap-4  text-primary"
 				>
 					<Logo className="size-10" />
-					Dokploy
+					GuildServer
 				</Link>
 				<div className="relative z-20 mt-auto">
 					<blockquote className="space-y-2">
