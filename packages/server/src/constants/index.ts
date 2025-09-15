@@ -2,6 +2,7 @@ import path from "path";
 
 export const IS_CLOUD = process.env.IS_CLOUD === "true";
 export const STRIPE_ENABLED = process.env.STRIPE_ENABLED !== "false"; // Default to true unless explicitly set to false
+export const PAYSTACK_ENABLED = process.env.PAYSTACK_ENABLED === "true";
 
 export const paths = (isServer = false) => {
   const BASE_PATH =

@@ -1,0 +1,41 @@
+
+> dokploy@ dokploy:dev /media/john-danlami/Backup/Projects/work/dokploy
+> pnpm --filter=dokploy run dev
+
+
+> dokploy@v0.24.10 dev /media/john-danlami/Backup/Projects/work/dokploy/apps/dokploy
+> tsx -r dotenv/config ./server/server.ts  --project tsconfig.server.json 
+
+Server Started on: http://0.0.0.0:3000
+Starting Deployment Worker
+ ○ Compiling / ...
+ ✓ Compiled / in 9.4s (1808 modules)
+ ✓ Compiled in 908ms (1808 modules)
+ HEAD / 200 in 14022ms
+ ELIFECYCLE  Command failed.
+
+  #  Node.js[363051]: void node::ResetStdio() at ../src/node.cc:751
+  #  Assertion failed: !(err != 0) || (err == -1 && (*__errno_location ()) == 1)
+
+----- Native stack trace -----
+
+ 1: 0xcc80b7 node::Assert(node::AssertionInfo const&) [node]
+ 2: 0xc78034  [node]
+ 3: 0x7cd2ab847a76  [/lib/x86_64-linux-gnu/libc.so.6]
+ 4: 0x7cd2ab847bbe  [/lib/x86_64-linux-gnu/libc.so.6]
+ 5: 0xbd94af node::DefaultProcessExitHandlerInternal(node::Environment*, node::ExitCode) [node]
+ 6: 0xc3851f node::Environment::Exit(node::ExitCode) [node]
+ 7: 0xf6e4ff v8::internal::FunctionCallbackArguments::Call(v8::internal::CallHandlerInfo) [node]
+ 8: 0xf6ed6d  [node]
+ 9: 0xf6f235 v8::internal::Builtin_HandleApiCall(int, unsigned long*, v8::internal::Isolate*) [node]
+10: 0x1979df6  [node]
+
+  #  Node.js[363051]: void node::ResetStdio() at ../src/node.cc:751
+  #  Assertion failed: !(err != 0) || (err == -1 && (*__errno_location ()) == 1)
+
+----- Native stack trace -----
+
+ 1: 0xcc80b7 node::Assert(node::AssertionInfo const&) [node]
+ 2: 0xc78034  [node]
+ 3: 0xc7864d node::TrapWebAssemblyOrContinue(int, siginfo_t*, void*) [node]
+ 4: 0x7cd2ab845330  [/lib/x86_64-linux-gnu/libc.so.6]

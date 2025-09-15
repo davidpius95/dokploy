@@ -21,6 +21,7 @@ import { mountRouter } from "./routers/mount";
 import { mysqlRouter } from "./routers/mysql";
 import { notificationRouter } from "./routers/notification";
 import { organizationRouter } from "./routers/organization";
+import { paystackRouter } from "./routers/paystack";
 import { portRouter } from "./routers/port";
 import { postgresRouter } from "./routers/postgres";
 import { previewDeploymentRouter } from "./routers/preview-deployment";
@@ -34,7 +35,6 @@ import { securityRouter } from "./routers/security";
 import { serverRouter } from "./routers/server";
 import { settingsRouter } from "./routers/settings";
 import { sshRouter } from "./routers/ssh-key";
-import { stripeRouter } from "./routers/stripe";
 import { swarmRouter } from "./routers/swarm";
 import { userRouter } from "./routers/user";
 import { volumeBackupsRouter } from "./routers/volume-backups";
@@ -45,45 +45,45 @@ import { volumeBackupsRouter } from "./routers/volume-backups";
  */
 
 export const appRouter = createTRPCRouter({
-	admin: adminRouter,
-	docker: dockerRouter,
-	project: projectRouter,
-	application: applicationRouter,
-	mysql: mysqlRouter,
-	postgres: postgresRouter,
-	redis: redisRouter,
-	mongo: mongoRouter,
-	mariadb: mariadbRouter,
-	compose: composeRouter,
-	user: userRouter,
-	domain: domainRouter,
-	destination: destinationRouter,
-	backup: backupRouter,
-	deployment: deploymentRouter,
-	previewDeployment: previewDeploymentRouter,
-	mounts: mountRouter,
-	certificates: certificateRouter,
-	settings: settingsRouter,
-	security: securityRouter,
-	redirects: redirectsRouter,
-	port: portRouter,
-	registry: registryRouter,
-	cluster: clusterRouter,
-	notification: notificationRouter,
-	sshKey: sshRouter,
-	gitProvider: gitProviderRouter,
-	gitea: giteaRouter,
-	bitbucket: bitbucketRouter,
-	gitlab: gitlabRouter,
-	github: githubRouter,
-	server: serverRouter,
-	stripe: stripeRouter,
-	swarm: swarmRouter,
-	ai: aiRouter,
-	organization: organizationRouter,
-	schedule: scheduleRouter,
-	rollback: rollbackRouter,
-	volumeBackups: volumeBackupsRouter,
+  admin: adminRouter,
+  docker: dockerRouter,
+  project: projectRouter,
+  application: applicationRouter,
+  mysql: mysqlRouter,
+  postgres: postgresRouter,
+  redis: redisRouter,
+  mongo: mongoRouter,
+  mariadb: mariadbRouter,
+  compose: composeRouter,
+  user: userRouter,
+  domain: domainRouter,
+  destination: destinationRouter,
+  backup: backupRouter,
+  deployment: deploymentRouter,
+  previewDeployment: previewDeploymentRouter,
+  mounts: mountRouter,
+  certificates: certificateRouter,
+  settings: settingsRouter,
+  security: securityRouter,
+  redirects: redirectsRouter,
+  port: portRouter,
+  registry: registryRouter,
+  cluster: clusterRouter,
+  notification: notificationRouter,
+  sshKey: sshRouter,
+  gitProvider: gitProviderRouter,
+  gitea: giteaRouter,
+  bitbucket: bitbucketRouter,
+  gitlab: gitlabRouter,
+  github: githubRouter,
+  server: serverRouter,
+  paystack: paystackRouter,
+  swarm: swarmRouter,
+  ai: aiRouter,
+  organization: organizationRouter,
+  schedule: scheduleRouter,
+  rollback: rollbackRouter,
+  volumeBackups: volumeBackupsRouter,
 });
 
 // export type definition of API
