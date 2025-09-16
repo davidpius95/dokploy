@@ -40,7 +40,15 @@ This README documents the setup and configuration of Dokploy on your local devel
      -p 5432:5432 postgres:15
    ```
 
-3. **Run the Application**
+3. **(Optional) Install Mailpit for Local Email Testing**
+   ```bash
+   brew install mailpit
+   mailpit --smtp 127.0.0.1:1025 --listen 127.0.0.1:8025
+   ```
+   - The SMTP server listens on port `1025` and the Mailpit UI is available at `http://127.0.0.1:8025`.
+   - Keep this process running while you test email verification or password reset flows.
+
+4. **Run the Application**
    ```bash
    DATABASE_URL=postgres://dokploy:amukds4wi9001583845717ad2@localhost:5432/dokploy \
    NODE_ENV=development \
@@ -49,10 +57,15 @@ This README documents the setup and configuration of Dokploy on your local devel
    IS_CLOUD=false \
    PUBLIC_APP_URL=http://localhost:3000 \
    STRIPE_ENABLED=false \
+   SMTP_SERVER=127.0.0.1 \
+   SMTP_PORT=1025 \
+   SMTP_USERNAME= \
+   SMTP_PASSWORD= \
+   SMTP_FROM_ADDRESS="Dokploy <no-reply@example.com>" \
    pnpm run dokploy:dev
    ```
 
-4. **Access the Application**
+5. **Access the Application**
    - Open your browser and navigate to: **http://localhost:3000**
    - Login with your admin credentials
 
@@ -231,6 +244,11 @@ INSERT INTO server (
 | `IS_CLOUD` | Multi-tenant mode | Yes | false |
 | `PUBLIC_APP_URL` | Public base URL | Yes | http://localhost:3000 |
 | `STRIPE_ENABLED` | Enable billing | No | true |
+| `SMTP_SERVER` | Outbound SMTP host | No | 127.0.0.1 |
+| `SMTP_PORT` | Outbound SMTP port | No | 1025 |
+| `SMTP_USERNAME` | SMTP username (if required) | No | - |
+| `SMTP_PASSWORD` | SMTP password (if required) | No | - |
+| `SMTP_FROM_ADDRESS` | Default sender address for Dokploy emails | No | Dokploy &lt;no-reply@example.com&gt; |
 
 ### Database Configuration
 
