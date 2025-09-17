@@ -51,8 +51,14 @@ type LoginForm = z.infer<typeof LoginSchema>;
 
 interface Props {
 	IS_CLOUD: boolean;
+	enableGithubAuth?: boolean;
+	enableGoogleAuth?: boolean;
 }
-export default function Home({ IS_CLOUD }: Props) {
+export default function Home({
+	IS_CLOUD,
+	enableGithubAuth = false,
+	enableGoogleAuth = false,
+}: Props) {
 	const router = useRouter();
 	const [isLoginLoading, setIsLoginLoading] = useState(false);
 	const [isTwoFactorLoading, setIsTwoFactorLoading] = useState(false);
@@ -162,16 +168,36 @@ export default function Home({ IS_CLOUD }: Props) {
 	};
 
 	const handleGithubSignIn = async () => {
+		if (!enableGithubAuth) {
+			toast.error("GitHub sign in is not configured.");
+			return;
+		}
 		setIsGithubLoading(true);
 		try {
-			const { error } = await authClient.signIn.social({
+			const { error, data } = await authClient.signIn.social({
 				provider: "github",
+				disableRedirect: true,
 			});
 
 			if (error) {
 				toast.error(error.message);
 				return;
 			}
+
+			if (data) {
+				if (data.url) {
+					window.location.href = data.url;
+					return;
+				}
+
+				if (data.redirect === false) {
+					toast.success("Logged in successfully");
+					router.push("/dashboard/projects");
+					return;
+				}
+			}
+
+			toast.error("Unable to initiate GitHub sign in. Please try again.");
 		} catch (error) {
 			toast.error("An error occurred while signing in with GitHub", {
 				description: error instanceof Error ? error.message : "Unknown error",
@@ -182,16 +208,36 @@ export default function Home({ IS_CLOUD }: Props) {
 	};
 
 	const handleGoogleSignIn = async () => {
+		if (!enableGoogleAuth) {
+			toast.error("Google sign in is not configured.");
+			return;
+		}
 		setIsGoogleLoading(true);
 		try {
-			const { error } = await authClient.signIn.social({
+			const { error, data } = await authClient.signIn.social({
 				provider: "google",
+				disableRedirect: true,
 			});
 
 			if (error) {
 				toast.error(error.message);
 				return;
 			}
+
+			if (data) {
+				if (data.url) {
+					window.location.href = data.url;
+					return;
+				}
+
+				if (data.redirect === false) {
+					toast.success("Logged in successfully");
+					router.push("/dashboard/projects");
+					return;
+				}
+			}
+
+			toast.error("Unable to initiate Google sign in. Please try again.");
 		} catch (error) {
 			toast.error("An error occurred while signing in with Google", {
 				description: error instanceof Error ? error.message : "Unknown error",
@@ -221,7 +267,7 @@ export default function Home({ IS_CLOUD }: Props) {
 			<CardContent className="p-0">
 				{!isTwoFactor ? (
 					<>
-						{IS_CLOUD && (
+						{IS_CLOUD && enableGithubAuth && (
 							<Button
 								variant="outline"
 								type="button"
@@ -238,7 +284,7 @@ export default function Home({ IS_CLOUD }: Props) {
 								Sign in with GitHub
 							</Button>
 						)}
-						{IS_CLOUD && (
+						{IS_CLOUD && enableGoogleAuth && (
 							<Button
 								variant="outline"
 								type="button"
@@ -468,6 +514,13 @@ Home.getLayout = (page: ReactElement) => {
 };
 export async function getServerSideProps(context: GetServerSidePropsContext) {
 	if (IS_CLOUD) {
+		const enableGithubAuth = Boolean(
+			process.env.GITHUB_CLIENT_ID && process.env.GITHUB_CLIENT_SECRET,
+		);
+		const enableGoogleAuth = Boolean(
+			process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET,
+		);
+
 		try {
 			const { user } = await validateRequest(context.req);
 			if (user) {
@@ -483,10 +536,18 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
 		return {
 			props: {
 				IS_CLOUD: IS_CLOUD,
+				enableGithubAuth,
+				enableGoogleAuth,
 			},
 		};
 	}
 	const hasAdmin = await isAdminPresent();
+	const enableGithubAuth = Boolean(
+		process.env.GITHUB_CLIENT_ID && process.env.GITHUB_CLIENT_SECRET,
+	);
+	const enableGoogleAuth = Boolean(
+		process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET,
+	);
 
 	if (!hasAdmin) {
 		return {
@@ -511,6 +572,8 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
 	return {
 		props: {
 			hasAdmin,
+			enableGithubAuth,
+			enableGoogleAuth,
 		},
 	};
 }

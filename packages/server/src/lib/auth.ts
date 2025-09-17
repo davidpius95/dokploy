@@ -13,6 +13,14 @@ import { updateUser } from "../services/user";
 import { sendEmail } from "../verification/send-verification-email";
 import { getPublicIpWithFallback } from "../wss/utils";
 
+export const ENABLE_GITHUB_AUTH =
+	Boolean(process.env.GITHUB_CLIENT_ID) &&
+	Boolean(process.env.GITHUB_CLIENT_SECRET);
+
+export const ENABLE_GOOGLE_AUTH =
+	Boolean(process.env.GOOGLE_CLIENT_ID) &&
+	Boolean(process.env.GOOGLE_CLIENT_SECRET);
+
 const { handler, api } = betterAuth({
 	database: drizzleAdapter(db, {
 		provider: "pg",
@@ -20,14 +28,22 @@ const { handler, api } = betterAuth({
 	}),
 	appName: "Dokploy",
 	socialProviders: {
-		github: {
-			clientId: process.env.GITHUB_CLIENT_ID as string,
-			clientSecret: process.env.GITHUB_CLIENT_SECRET as string,
-		},
-		google: {
-			clientId: process.env.GOOGLE_CLIENT_ID as string,
-			clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
-		},
+		...(ENABLE_GITHUB_AUTH
+			? {
+					github: {
+						clientId: process.env.GITHUB_CLIENT_ID as string,
+						clientSecret: process.env.GITHUB_CLIENT_SECRET as string,
+					},
+				}
+			: {}),
+		...(ENABLE_GOOGLE_AUTH
+			? {
+					google: {
+						clientId: process.env.GOOGLE_CLIENT_ID as string,
+						clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
+					},
+				}
+			: {}),
 	},
 	logger: {
 		disabled: process.env.NODE_ENV === "production",
