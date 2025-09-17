@@ -29,6 +29,7 @@ import {
 } from "@/components/ui/select";
 import { api } from "@/utils/api";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { BRAND_NAME } from "@/lib/brand";
 import { AlertTriangle, PenBoxIcon, PlusIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -327,7 +328,7 @@ export const HandleRegistry = ({ registryId }: Props) => {
 											username,
 											password,
 											registryUrl,
-											registryName: "Dokploy Registry",
+											registryName: `${BRAND_NAME} Registry`,
 											imagePrefix,
 											serverId,
 										});

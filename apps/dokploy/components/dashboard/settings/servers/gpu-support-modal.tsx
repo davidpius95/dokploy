@@ -6,6 +6,7 @@ import {
 	DialogTrigger,
 } from "@/components/ui/dialog";
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
+import { BRAND_NAME } from "@/lib/brand";
 import { useState } from "react";
 import { GPUSupport } from "./gpu-support";
 
@@ -25,7 +26,7 @@ export const GPUSupportModal = () => {
 			<DialogContent className="sm:max-w-4xl">
 				<DialogHeader>
 					<DialogTitle className="flex items-center gap-2">
-						Dokploy Server GPU Setup
+						{BRAND_NAME} Server GPU Setup
 					</DialogTitle>
 				</DialogHeader>
 

@@ -1,5 +1,6 @@
 import { Logo } from "@/components/shared/logo";
 import { buttonVariants } from "@/components/ui/button";
+import { BRAND_GITHUB_URL, BRAND_NAME, BRAND_WEBSITE_URL } from "@/lib/brand";
 import type { NextPageContext } from "next";
 import Link from "next/link";
 
@@ -16,12 +17,12 @@ export default function Custom404({ statusCode, error }: Props) {
         <header className="mb-auto flex justify-center z-50 w-full py-4">
           <nav className="px-4 sm:px-6 lg:px-8" aria-label="Global">
             <Link
-              href="https://dokploy.com"
+              href={BRAND_WEBSITE_URL}
               target="_blank"
               className="flex flex-row items-center gap-2"
             >
               <Logo />
-              <span className="font-medium text-sm">GuildServer</span>
+              <span className="font-medium text-sm">{BRAND_NAME}</span>
             </Link>
           </nav>
         </header>
@@ -81,7 +82,7 @@ export default function Custom404({ statusCode, error }: Props) {
           <div className="max-w-[85rem] mx-auto px-4 sm:px-6 lg:px-8">
             <p className="text-sm text-gray-500">
               <Link
-                href="https://github.com/Dokploy/dokploy/issues"
+                href={`${BRAND_GITHUB_URL}/issues`}
                 target="_blank"
                 className="underline hover:text-primary transition-colors"
               >

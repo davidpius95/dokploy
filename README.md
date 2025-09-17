@@ -1,7 +1,7 @@
-# Dokploy - Self-Hosted Platform as a Service
+# GuildServer - Self-Hosted Platform as a Service
 
 <div align="center">
-  <img src=".github/sponsors/logo.png" alt="Dokploy - Open Source Alternative to Vercel, Heroku and Netlify." width="100%"  />
+  <img src=".github/sponsors/logo.png" alt="GuildServer - Open Source Alternative to Vercel, Heroku and Netlify." width="100%"  />
   </br>
   </br>
   <p>Self-hosted Platform as a Service (PaaS) for deploying applications and managing databases</p>
@@ -9,7 +9,7 @@
 
 ## 🚀 Quick Start
 
-This README documents the setup and configuration of Dokploy on your local development environment.
+This README documents the setup and configuration of GuildServer on your local development environment.
 
 ### Prerequisites
 
@@ -23,20 +23,20 @@ This README documents the setup and configuration of Dokploy on your local devel
 1. **Clone and Install Dependencies**
    ```bash
    git clone <your-repo-url>
-   cd dokploy
+   cd guildserver
    pnpm install
    ```
 
 2. **Start Required Services**
    ```bash
    # Start Redis
-   docker run -d --name dokploy-redis -p 6379:6379 redis:7-alpine
+   docker run -d --name guildserver-redis -p 6379:6379 redis:7-alpine
    
    # Start PostgreSQL
-   docker run -d --name dokploy-postgres \
-     -e POSTGRES_USER=dokploy \
+   docker run -d --name guildserver-postgres \
+     -e POSTGRES_USER=guildserver \
      -e POSTGRES_PASSWORD=amukds4wi9001583845717ad2 \
-     -e POSTGRES_DB=dokploy \
+     -e POSTGRES_DB=guildserver \
      -p 5432:5432 postgres:15
    ```
 
@@ -50,7 +50,7 @@ This README documents the setup and configuration of Dokploy on your local devel
 
 4. **Run the Application**
    ```bash
-   DATABASE_URL=postgres://dokploy:amukds4wi9001583845717ad2@localhost:5432/dokploy \
+   DATABASE_URL=postgres://guildserver:amukds4wi9001583845717ad2@localhost:5432/guildserver \
    NODE_ENV=development \
    PORT=3000 \
    HOST=0.0.0.0 \
@@ -61,8 +61,8 @@ This README documents the setup and configuration of Dokploy on your local devel
    SMTP_PORT=1025 \
    SMTP_USERNAME= \
    SMTP_PASSWORD= \
-   SMTP_FROM_ADDRESS="Dokploy <no-reply@example.com>" \
-   pnpm run dokploy:dev
+   SMTP_FROM_ADDRESS="GuildServer <no-reply@example.com>" \
+   pnpm run guildserver:dev
    ```
 
 5. **Access the Application**
@@ -113,7 +113,7 @@ If you need to create a new admin account:
 
 ### Adding Servers
 
-Dokploy supports multiple servers for deploying applications and databases.
+GuildServer supports multiple servers for deploying applications and databases.
 
 #### Prerequisites
 
@@ -125,7 +125,7 @@ Dokploy supports multiple servers for deploying applications and databases.
 
 1. **Generate SSH Key Pair**:
    ```bash
-   ssh-keygen -t rsa -b 4096 -f ~/.ssh/dokploy_key -N ""
+   ssh-keygen -t rsa -b 4096 -f ~/.ssh/guildserver_key -N ""
    ```
 
 2. **Add Public Key to Server**:
@@ -144,7 +144,7 @@ Dokploy supports multiple servers for deploying applications and databases.
    - **IP Address**: Server IP address
    - **Port**: SSH port (usually 22)
    - **Username**: SSH username (usually root)
-   - **SSH Key**: Select "Dokploy Server Key"
+   - **SSH Key**: Select "GuildServer Server Key"
 
 #### Adding Server via Database
 
@@ -248,20 +248,20 @@ INSERT INTO server (
 | `SMTP_PORT` | Outbound SMTP port | No | 1025 |
 | `SMTP_USERNAME` | SMTP username (if required) | No | - |
 | `SMTP_PASSWORD` | SMTP password (if required) | No | - |
-| `SMTP_FROM_ADDRESS` | Default sender address for Dokploy emails | No | Dokploy &lt;no-reply@example.com&gt; |
+| `SMTP_FROM_ADDRESS` | Default sender address for GuildServer emails | No | GuildServer &lt;no-reply@example.com&gt; |
 
 ### Database Configuration
 
 - **Host**: localhost:5432
-- **Database**: dokploy
-- **Username**: dokploy
+- **Database**: guildserver
+- **Username**: guildserver
 - **Password**: amukds4wi9001583845717ad2
 
 ### Redis Configuration
 
 - **Host**: localhost:6379
 - **Port**: 6379
-- **Container**: dokploy-redis
+- **Container**: guildserver-redis
 
 ## 🚀 Deployment
 
@@ -269,10 +269,10 @@ INSERT INTO server (
 
 ```bash
 # Start services
-docker start dokploy-redis dokploy-postgres
+docker start guildserver-redis guildserver-postgres
 
 # Run application
-pnpm run dokploy:dev
+pnpm run guildserver:dev
 ```
 
 ### Production Deployment
@@ -284,7 +284,7 @@ pnpm run dokploy:dev
 
 ## 📝 API Documentation
 
-Dokploy provides a comprehensive API for programmatic access:
+GuildServer provides a comprehensive API for programmatic access:
 
 - **REST API**: Standard HTTP endpoints
 - **tRPC**: Type-safe API with automatic documentation
@@ -305,13 +305,13 @@ This project is licensed under the Apache-2.0 License.
 
 ## 🆘 Support
 
-- **Documentation**: [docs.dokploy.com](https://docs.dokploy.com)
+- **Documentation**: [docs.guildserver.com](https://docs.guildserver.com)
 - **Discord**: [Join our community](https://discord.gg/2tBnJ3jDJc)
-- **Issues**: [GitHub Issues](https://github.com/dokploy/dokploy/issues)
+- **Issues**: [GitHub Issues](https://github.com/guildserver/guildserver/issues)
 
 ## 🔄 Updates
 
-To update Dokploy:
+To update GuildServer:
 
 1. **Pull latest changes**:
    ```bash
@@ -330,9 +330,9 @@ To update Dokploy:
 
 4. **Restart the application**:
    ```bash
-   pnpm run dokploy:dev
+   pnpm run guildserver:dev
    ```
 
 ---
 
-**Dokploy** - Simplifying deployment and infrastructure management since 2024.
+**GuildServer** - Simplifying deployment and infrastructure management since 2024.

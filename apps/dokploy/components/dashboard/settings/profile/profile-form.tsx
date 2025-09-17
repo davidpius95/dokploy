@@ -20,6 +20,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Switch } from "@/components/ui/switch";
+import { BRAND_NAME } from "@/lib/brand";
 import { generateSHA256Hash, getFallbackAvatarInitials } from "@/lib/utils";
 import { api } from "@/utils/api";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -310,7 +311,7 @@ export const ProfileForm = () => {
 															<div className="space-y-0.5">
 																<FormLabel>Allow Impersonation</FormLabel>
 																<FormDescription>
-																	Enable this option to allow Dokploy Cloud
+																	Enable this option to allow {BRAND_NAME} Cloud
 																	administrators to temporarily access your
 																	account for troubleshooting and support
 																	purposes. This helps them quickly identify and

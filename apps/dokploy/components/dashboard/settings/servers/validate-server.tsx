@@ -7,6 +7,7 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
+import { BRAND_NAME } from "@/lib/brand";
 import { api } from "@/utils/api";
 import { Loader2, PcCase, RefreshCw } from "lucide-react";
 import { useState } from "react";
@@ -122,7 +123,7 @@ export const ValidateServer = ({ serverId }: Props) => {
 											}
 										/>
 										<StatusRow
-											label="Dokploy Network Created"
+											label={`${BRAND_NAME} Network Created`}
 											isEnabled={data?.isDokployNetworkInstalled}
 											description={
 												data?.isDokployNetworkInstalled

@@ -4,6 +4,7 @@ import {
 	TelegramIcon,
 } from "@/components/icons/notification-icons";
 import { Button } from "@/components/ui/button";
+import { BRAND_NAME } from "@/lib/brand";
 import {
 	Dialog,
 	DialogContent,
@@ -974,7 +975,7 @@ export const HandleNotifications = ({ notificationId }: Props) => {
 										render={({ field }) => (
 											<FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm gap-2">
 												<div className="space-y-0.5">
-													<FormLabel>Dokploy Restart</FormLabel>
+													<FormLabel>{BRAND_NAME} Restart</FormLabel>
 													<FormDescription>
 														Trigger the action when dokploy is restarted.
 													</FormDescription>

@@ -1,4 +1,5 @@
 import { CodeEditor } from "@/components/shared/code-editor";
+import { BRAND_NAME } from "@/lib/brand";
 import ReactMarkdown from "react-markdown";
 import type { StepProps } from "./step-two";
 
@@ -24,7 +25,7 @@ export const StepThree = ({ templateInfo }: StepProps) => {
 						<div>
 							<h3 className="text-md font-semibold">Server</h3>
 							<p className="text-sm text-muted-foreground">
-								{templateInfo?.server?.name || "Dokploy Server"}
+								{templateInfo?.server?.name || `${BRAND_NAME} Server`}
 							</p>
 						</div>
 						<div className="space-y-2">

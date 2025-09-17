@@ -5,10 +5,11 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from "@/components/ui/dialog";
+import { BRAND_NAME } from "@/lib/brand";
 import { api } from "@/utils/api";
 import { useEffect, useState } from "react";
 
-export const ShowWelcomeDokploy = () => {
+export const ShowWelcomeGuildServer = () => {
 	const { data } = api.user.get.useQuery();
 	const [open, setOpen] = useState(false);
 
@@ -44,7 +45,7 @@ export const ShowWelcomeDokploy = () => {
 				<DialogContent className="sm:max-w-xl">
 					<DialogHeader>
 						<DialogTitle className="text-2xl font-semibold text-center">
-							Welcome to Dokploy Cloud 🎉
+							Welcome to {BRAND_NAME} Cloud 🎉
 						</DialogTitle>
 						<p className="text-center text-sm text-muted-foreground mt-2">
 							Unlock powerful features to streamline your deployments and manage

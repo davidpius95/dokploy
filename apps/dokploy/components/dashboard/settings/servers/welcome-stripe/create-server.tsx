@@ -27,6 +27,7 @@ import {
 	SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { BRAND_NAME, BRAND_SLUG } from "@/lib/brand";
 import { api } from "@/utils/api";
 
 const Schema = z.object({
@@ -56,13 +57,12 @@ export const CreateServer = ({ stepper }: Props) => {
 	const { data: canCreateMoreServers, refetch } =
 		api.stripe.canCreateMoreServers.useQuery();
 	const { mutateAsync } = api.server.create.useMutation();
-	const cloudSSHKey = sshKeys?.find(
-		(sshKey) => sshKey.name === "dokploy-cloud-ssh-key",
-	);
+	const cloudKeyName = `${BRAND_SLUG}-cloud-ssh-key`;
+	const cloudSSHKey = sshKeys?.find((sshKey) => sshKey.name === cloudKeyName);
 
 	const form = useForm<Schema>({
 		defaultValues: {
-			description: "Dokploy Cloud Server",
+			description: `${BRAND_NAME} Cloud Server`,
 			name: "My First Server",
 			ipAddress: "",
 			port: 22,
@@ -74,7 +74,7 @@ export const CreateServer = ({ stepper }: Props) => {
 
 	useEffect(() => {
 		form.reset({
-			description: "Dokploy Cloud Server",
+			description: `${BRAND_NAME} Cloud Server`,
 			name: "My First Server",
 			ipAddress: "",
 			port: 22,

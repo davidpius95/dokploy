@@ -18,6 +18,7 @@ import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import React from "react";
 import ConfettiExplosion from "react-confetti-explosion";
+import { BRAND_DOCS_URL, BRAND_GITHUB_URL, BRAND_NAME, BRAND_SLUG } from "@/lib/brand";
 import { CreateServer } from "./create-server";
 import { CreateSSHKey } from "./create-ssh-key";
 import { Setup } from "./setup";
@@ -78,10 +79,10 @@ export const WelcomeSuscription = () => {
 
 				<DialogHeader>
 					<DialogTitle className="text-2xl text-center">
-						Welcome To Dokploy Cloud 🎉
+						Welcome To {BRAND_NAME} Cloud 🎉
 					</DialogTitle>
 					<DialogDescription className="text-center max-w-xl mx-auto">
-						Thank you for choosing Dokploy Cloud! 🚀 We're excited to have you
+						Thank you for choosing {BRAND_NAME} Cloud! 🚀 We're excited to have you
 						onboard. Before you dive in, you'll need to configure your remote
 						server to unlock all the features we offer.
 					</DialogDescription>
@@ -179,7 +180,7 @@ export const WelcomeSuscription = () => {
 											</li>
 											<li>
 												<a
-													href=" https://app.americancloud.com/register?ref=dokploy"
+													href={` https://app.americancloud.com/register?ref=${BRAND_SLUG}`}
 													className="text-link underline"
 												>
 													American Cloud - Get $20 Credits
@@ -294,7 +295,7 @@ export const WelcomeSuscription = () => {
 												that your server can handle?
 											</p>
 											<p className="text-muted-foreground">
-												Here are some of the things you can do with Dokploy
+												Here are some of the things you can do with {BRAND_NAME}
 												Cloud:
 											</p>
 										</div>
@@ -327,7 +328,7 @@ export const WelcomeSuscription = () => {
 												<Button className="rounded-full bg-[#5965F2] hover:bg-[#4A55E0] w-fit">
 													<Link
 														href="https://discord.gg/2tBnJ3jDJc"
-														aria-label="Dokploy on GitHub"
+														aria-label={`${BRAND_NAME} community on Discord`}
 														target="_blank"
 														className="flex flex-row items-center gap-2 text-white"
 													>
@@ -344,8 +345,8 @@ export const WelcomeSuscription = () => {
 												</Button>
 												<Button className="rounded-full  w-fit">
 													<Link
-														href="https://github.com/Dokploy/dokploy"
-														aria-label="Dokploy on GitHub"
+														href={BRAND_GITHUB_URL}
+														aria-label={`${BRAND_NAME} on GitHub`}
 														target="_blank"
 														className="flex flex-row items-center gap-2 "
 													>
@@ -359,8 +360,8 @@ export const WelcomeSuscription = () => {
 													variant="outline"
 												>
 													<Link
-														href="https://docs.dokploy.com/docs/core"
-														aria-label="Dokploy Docs"
+														href={BRAND_DOCS_URL}
+														aria-label={`${BRAND_NAME} Docs`}
 														target="_blank"
 														className="flex flex-row items-center gap-2 "
 													>

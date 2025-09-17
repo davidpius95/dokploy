@@ -11,6 +11,7 @@ import {
 	TooltipProvider,
 	TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { BRAND_GITHUB_URL, BRAND_NAME } from "@/lib/brand";
 import { api } from "@/utils/api";
 import type { IUpdateData } from "@dokploy/server/index";
 import {
@@ -47,7 +48,7 @@ export const UpdateServer = ({
 	);
 	const { mutateAsync: getUpdateData, isLoading } =
 		api.settings.getUpdateData.useMutation();
-	const { data: dokployVersion } = api.settings.getDokployVersion.useQuery();
+	const { data: platformVersion } = api.settings.getDokployVersion.useQuery();
 	const { data: releaseTag } = api.settings.getReleaseTag.useQuery();
 	const [latestVersion, setLatestVersion] = useState(
 		updateData?.latestVersion ?? "",
@@ -131,11 +132,11 @@ export const UpdateServer = ({
 					<DialogTitle className="text-2xl font-semibold">
 						Web Server Update
 					</DialogTitle>
-					{dokployVersion && (
+					{platformVersion && (
 						<div className="flex items-center gap-1.5 rounded-full px-3 py-1 mr-2 bg-muted">
 							<Server className="h-4 w-4 text-muted-foreground" />
 							<span className="text-sm text-muted-foreground">
-								{dokployVersion} | {releaseTag}
+								{platformVersion} | {releaseTag}
 							</span>
 						</div>
 					)}
@@ -145,7 +146,7 @@ export const UpdateServer = ({
 				{!hasCheckedUpdate && (
 					<div className="mb-8">
 						<p className="text text-muted-foreground">
-							Check for new releases and update Dokploy.
+							Check for new releases and update {BRAND_NAME}.
 							<br />
 							<br />
 							We recommend checking for updates regularly to ensure you have the
@@ -237,7 +238,7 @@ export const UpdateServer = ({
 							<div className="text-[#5B9DFF]">
 								We recommend reviewing the{" "}
 								<Link
-									href="https://github.com/Dokploy/dokploy/releases"
+									href={`${BRAND_GITHUB_URL}/releases`}
 									target="_blank"
 									className="text-white underline hover:text-zinc-200"
 								>

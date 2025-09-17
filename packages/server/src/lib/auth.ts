@@ -5,7 +5,7 @@ import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { APIError } from "better-auth/api";
 import { admin, apiKey, organization, twoFactor } from "better-auth/plugins";
 import { and, desc, eq } from "drizzle-orm";
-import { IS_CLOUD } from "../constants";
+import { BRAND_NAME, IS_CLOUD } from "../constants";
 import { db } from "../db";
 import * as schema from "../db/schema";
 import { getUserByToken } from "../services/admin";
@@ -26,7 +26,7 @@ const { handler, api } = betterAuth({
 		provider: "pg",
 		schema: schema,
 	}),
-	appName: "Dokploy",
+	appName: BRAND_NAME,
 	socialProviders: {
 		...(ENABLE_GITHUB_AUTH
 			? {
@@ -77,7 +77,7 @@ const { handler, api } = betterAuth({
 					email: user.email,
 					subject: "Verify your email",
 					text: `
-				<p>Click the link to verify your email: <a href="${url}">Verify Email</a></p>
+				<p>Click the link to verify your email for ${BRAND_NAME}: <a href="${url}">Verify Email</a></p>
 				`,
 				});
 			}
@@ -227,7 +227,7 @@ const { handler, api } = betterAuth({
 						email: data.email,
 						subject: "Invitation to join organization",
 						text: `
-					<p>You are invited to join ${data.organization.name} on Dokploy. Click the link to accept the invitation: <a href="${inviteLink}">Accept Invitation</a></p>
+				<p>You are invited to join ${data.organization.name} on ${BRAND_NAME}. Click the link to accept the invitation: <a href="${inviteLink}">Accept Invitation</a></p>
 					`,
 					});
 				}

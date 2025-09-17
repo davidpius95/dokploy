@@ -7,6 +7,7 @@ import { CodeEditor } from "@/components/shared/code-editor";
 import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { BRAND_NAME, BRAND_SLUG } from "@/lib/brand";
 import { api } from "@/utils/api";
 
 export const CreateSSHKey = () => {
@@ -18,9 +19,8 @@ export const CreateSSHKey = () => {
 		"manual",
 	);
 
-	const cloudSSHKey = data?.find(
-		(sshKey) => sshKey.name === "dokploy-cloud-ssh-key",
-	);
+	const cloudKeyName = `${BRAND_SLUG}-cloud-ssh-key`;
+	const cloudSSHKey = data?.find((sshKey) => sshKey.name === cloudKeyName);
 
 	useEffect(() => {
 		const createKey = async () => {
@@ -34,9 +34,9 @@ export const CreateSSHKey = () => {
 				const keys = await generateMutation.mutateAsync({
 					type: "rsa",
 				});
-				await mutateAsync({
-					name: "dokploy-cloud-ssh-key",
-					description: "Used on Dokploy Cloud",
+					await mutateAsync({
+						name: cloudKeyName,
+						description: `Used on ${BRAND_NAME} Cloud`,
 					privateKey: keys.privateKey,
 					publicKey: keys.publicKey,
 					organizationId: "",

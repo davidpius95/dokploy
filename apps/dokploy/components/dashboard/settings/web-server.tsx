@@ -8,7 +8,7 @@ import {
 import { api } from "@/utils/api";
 import { ServerIcon } from "lucide-react";
 import { useTranslation } from "next-i18next";
-import { ShowDokployActions } from "./servers/actions/show-dokploy-actions";
+import { ShowGuildServerActions } from "./servers/actions/show-dokploy-actions";
 import { ShowStorageActions } from "./servers/actions/show-storage-actions";
 import { ShowTraefikActions } from "./servers/actions/show-traefik-actions";
 import { ToggleDockerCleanup } from "./servers/actions/toggle-docker-cleanup";
@@ -44,7 +44,7 @@ export const WebServer = () => {
 					</CardHeader> */}
 					<CardContent className="space-y-6 py-6 border-t">
 						<div className="grid md:grid-cols-2 gap-4">
-							<ShowDokployActions />
+							<ShowGuildServerActions />
 							<ShowTraefikActions />
 							<ShowStorageActions />
 

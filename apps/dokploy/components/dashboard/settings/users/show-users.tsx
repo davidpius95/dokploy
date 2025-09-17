@@ -15,6 +15,7 @@ import {
 	DropdownMenuLabel,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { BRAND_NAME } from "@/lib/brand";
 import {
 	Table,
 	TableBody,
@@ -48,7 +49,7 @@ export const ShowUsers = () => {
 							Users
 						</CardTitle>
 						<CardDescription>
-							Add your users to your Dokploy account.
+							Add your users to your {BRAND_NAME} account.
 						</CardDescription>
 					</CardHeader>
 					<CardContent className="space-y-2 py-8 border-t">
@@ -62,8 +63,8 @@ export const ShowUsers = () => {
 								{data?.length === 0 ? (
 									<div className="flex flex-col items-center gap-3  min-h-[25vh] justify-center">
 										<Users className="size-8 self-center text-muted-foreground" />
-										<span className="text-base text-muted-foreground">
-											Invite users to your Dokploy account
+											<span className="text-base text-muted-foreground">
+												Invite users to your {BRAND_NAME} account
 										</span>
 									</div>
 								) : (

@@ -12,7 +12,7 @@ import superjson from "superjson";
 const ShowWelcomeGuildServer = dynamic(
 	() =>
 		import("@/components/dashboard/settings/billing/show-welcome-dokploy").then(
-			(mod) => mod.ShowWelcomeDokploy,
+			(mod) => mod.ShowWelcomeGuildServer,
 		),
 	{ ssr: false },
 );

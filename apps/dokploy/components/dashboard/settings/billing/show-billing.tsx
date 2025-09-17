@@ -10,6 +10,7 @@ import {
 import { NumberInput } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { BRAND_NAME } from "@/lib/brand";
 import { cn } from "@/lib/utils";
 import { api } from "@/utils/api";
 import { STRIPE_ENABLED } from "@dokploy/server/constants";
@@ -156,11 +157,11 @@ export const ShowBilling = () => {
 								</span>
 								<Button className="rounded-full bg-[#5965F2] hover:bg-[#4A55E0] w-fit">
 									<Link
-										href="https://discord.gg/2tBnJ3jDJc"
-										aria-label="Dokploy on GitHub"
-										target="_blank"
-										className="flex flex-row items-center gap-2 text-white"
-									>
+											href="https://discord.gg/2tBnJ3jDJc"
+											aria-label={`${BRAND_NAME} community on Discord`}
+											target="_blank"
+											className="flex flex-row items-center gap-2 text-white"
+										>
 										<svg
 											role="img"
 											className="h-6 w-6 fill-white"
@@ -244,13 +245,13 @@ export const ShowBilling = () => {
 														)}
 													>
 														{[
-															"All the features of Dokploy",
+															`All the features of ${BRAND_NAME}`,
 															"Unlimited deployments",
 															"Self-hosted on your own infrastructure",
 															"Full access to all deployment features",
-															"Dokploy integration",
+															`${BRAND_NAME} integration`,
 															"Backups",
-															"All Incoming features",
+															"All upcoming features",
 														].map((feature) => (
 															<li
 																key={feature}

@@ -1,3 +1,4 @@
+import { BRAND_NAME } from "@/lib/brand";
 import { cn } from "@/lib/utils";
 
 interface Props {
@@ -21,10 +22,10 @@ export const Logo = ({ className = "size-14", logoUrl }: Props) => {
 			xmlns="http://www.w3.org/2000/svg"
 			viewBox="0 0 64 64"
 			role="img"
-			aria-label="Dokploy logo"
+			aria-label={`${BRAND_NAME} logo`}
 			className={cn("text-primary", className)}
 		>
-			<title>Dokploy logo</title>
+			<title>{`${BRAND_NAME} logo`}</title>
 			<path
 				d="M32 4 8 12v13c0 16.5 9.9 32 24 39 14.1-7 24-22.5 24-39V12Z"
 				fill="none"

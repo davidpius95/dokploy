@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
+import { BRAND_NAME } from "@/lib/brand";
 import { authClient } from "@/lib/auth-client";
 import { api } from "@/utils/api";
 import { format } from "date-fns";
@@ -28,10 +29,11 @@ export const AddGithubProvider = () => {
 
 	useEffect(() => {
 		const url = document.location.origin;
+		const appName = `${BRAND_NAME}-${format(new Date(), "yyyy-MM-dd")}-${randomString()}`;
 		const manifest = JSON.stringify(
 			{
 				redirect_url: `${origin}/api/providers/github/setup?organizationId=${activeOrganization?.id}&userId=${session?.user?.id}`,
-				name: `Dokploy-${format(new Date(), "yyyy-MM-dd")}-${randomString()}`,
+				name: appName,
 				url: origin,
 				hook_attributes: {
 					url: `${url}/api/deploy/github`,

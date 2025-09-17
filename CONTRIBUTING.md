@@ -1,6 +1,6 @@
 # Contributing
 
-Hey, thanks for your interest in contributing to Dokploy! We appreciate your help and taking your time to contribute.
+Hey, thanks for your interest in contributing to GuildServer! We appreciate your help and taking your time to contribute.
 
 Before you start, please first discuss the feature/bug you want to add with the owners and comunity via github issues.
 
@@ -55,10 +55,10 @@ Before you start, please make the clone based on the `canary` branch, since the 
 We use Node v20.16.0 and recommend this specific version. If you have nvm installed, you can run `nvm install 20.16.0 && nvm use` in the root directory.
 
 ```bash
-git clone https://github.com/dokploy/dokploy.git
-cd dokploy
+git clone https://github.com/guildserver/guildserver.git
+cd guildserver
 pnpm install
-cp apps/dokploy/.env.example apps/dokploy/.env
+cp apps/guildserver/.env.example apps/guildserver/.env
 ```
 
 ## Requirements
@@ -70,7 +70,7 @@ cp apps/dokploy/.env.example apps/dokploy/.env
 Run the command that will spin up all the required services and files.
 
 ```bash
-pnpm run dokploy:setup
+pnpm run guildserver:setup
 ```
 
 Run this script
@@ -82,7 +82,7 @@ pnpm run server:script
 Now run the development server.
 
 ```bash
-pnpm run dokploy:dev
+pnpm run guildserver:dev
 ```
 
 Go to http://localhost:3000 to see the development server
@@ -93,7 +93,7 @@ Go to http://localhost:3000 to see the development server
 ## Build
 
 ```bash
-pnpm run dokploy:build
+pnpm run guildserver:build
 ```
 
 ## Docker
@@ -127,7 +127,7 @@ pnpm dlx localtunnel --port 3000
 If you run into permission issues of docker run the following command
 
 ```bash
-sudo chown -R USERNAME dokploy or sudo chown -R $(whoami) ~/.docker
+sudo chown -R USERNAME guildserver or sudo chown -R $(whoami) ~/.docker
 ```
 
 ## Application deploy
@@ -156,7 +156,7 @@ curl -sSL "https://github.com/buildpacks/pack/releases/download/v0.35.0/pack-v0.
 - The `canary` branch is the source of truth and should always reflect the latest stable release.
 - Create a new branch for each feature or bug fix.
 - Make sure to add tests for your changes.
-- Make sure to update the documentation for any changes Go to the [docs.dokploy.com](https://docs.dokploy.com) website to see the changes.
+- Make sure to update the documentation for any changes Go to the [docs.guildserver.com](https://docs.guildserver.com) website to see the changes.
 - When creating a pull request, please provide a clear and concise description of the changes made.
 - If you include a video or screenshot, would be awesome so we can see the changes in action.
 - If your pull request fixes an open issue, please reference the issue in the pull request description.
@@ -172,7 +172,7 @@ Thank you for your contribution!
 
 ## Templates
 
-To add a new template, go to `https://github.com/Dokploy/templates` repository and read the README.md file.
+To add a new template, go to `https://github.com/GuildServer/templates` repository and read the README.md file.
 
 ### Recommendations
 
@@ -183,4 +183,4 @@ To add a new template, go to `https://github.com/Dokploy/templates` repository a
 
 ## Docs & Website
 
-To contribute to the Dokploy docs or website, please go to this [repository](https://github.com/Dokploy/website).
+To contribute to the GuildServer docs or website, please go to this [repository](https://github.com/GuildServer/website).
