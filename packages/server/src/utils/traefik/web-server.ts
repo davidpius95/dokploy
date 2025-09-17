@@ -1,7 +1,7 @@
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
-import { paths } from "@dokploy/server/constants";
-import type { User } from "@dokploy/server/services/user";
+import { paths } from "@guildserver/server/constants";
+import type { User } from "@guildserver/server/services/user";
 import { dump, load } from "js-yaml";
 import {
 	loadOrCreateConfig,
@@ -16,7 +16,7 @@ export const updateServerTraefik = (
 	newHost: string | null,
 ) => {
 	const { https, certificateType } = user || {};
-	const appName = "dokploy";
+	const appName = "guildserver";
 	const config: FileConfig = loadOrCreateConfig(appName);
 
 	config.http = config.http || { routers: {}, services: {} };
@@ -36,7 +36,7 @@ export const updateServerTraefik = (
 			loadBalancer: {
 				servers: [
 					{
-						url: `http://dokploy:${process.env.PORT || 3000}`,
+						url: `http://guildserver:${process.env.PORT || 3000}`,
 					},
 				],
 				passHostHeader: true,

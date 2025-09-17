@@ -1,16 +1,17 @@
-import { db } from "@dokploy/server/db";
+import { db } from "@guildserver/server/db";
 import {
 	type apiCreatePreviewDeployment,
 	deployments,
 	organization,
 	previewDeployments,
-} from "@dokploy/server/db/schema";
+} from "@guildserver/server/db/schema";
 import { TRPCError } from "@trpc/server";
 import { and, desc, eq } from "drizzle-orm";
 import { generatePassword } from "../templates";
 import { removeService } from "../utils/docker/utils";
 import { removeDirectoryCode } from "../utils/filesystem/directory";
 import { authGithub } from "../utils/providers/github";
+import { BRAND_NAME } from "../constants";
 import { removeTraefikConfig } from "../utils/traefik/application";
 import { manageDomain } from "../utils/traefik/domain";
 import { findUserById } from "./admin";
@@ -178,7 +179,7 @@ export const createPreviewDeployment = async (
 		owner: application?.owner || "",
 		repo: application?.repository || "",
 		issue_number: Number.parseInt(schema.pullRequestNumber),
-		body: `### Dokploy Preview Deployment\n\n${runningComment}`,
+		body: `### ${BRAND_NAME} Preview Deployment\n\n${runningComment}`,
 	});
 
 	const previewDeployment = await db

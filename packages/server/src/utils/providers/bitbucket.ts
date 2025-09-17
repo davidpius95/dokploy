@@ -1,13 +1,13 @@
 import { createWriteStream } from "node:fs";
 import { join } from "node:path";
-import { paths } from "@dokploy/server/constants";
+import { paths } from "@guildserver/server/constants";
 import type {
 	apiBitbucketTestConnection,
 	apiFindBitbucketBranches,
-} from "@dokploy/server/db/schema";
-import { findBitbucketById } from "@dokploy/server/services/bitbucket";
-import type { Compose } from "@dokploy/server/services/compose";
-import type { InferResultType } from "@dokploy/server/types/with";
+} from "@guildserver/server/db/schema";
+import { findBitbucketById } from "@guildserver/server/services/bitbucket";
+import type { Compose } from "@guildserver/server/services/compose";
+import type { InferResultType } from "@guildserver/server/types/with";
 import { TRPCError } from "@trpc/server";
 import { recreateDirectory } from "../filesystem/directory";
 import { execAsyncRemote } from "../process/execAsync";

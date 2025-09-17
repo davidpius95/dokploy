@@ -5,7 +5,7 @@ import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { APIError } from "better-auth/api";
 import { admin, apiKey, organization, twoFactor } from "better-auth/plugins";
 import { and, desc, eq } from "drizzle-orm";
-import { BRAND_NAME, IS_CLOUD } from "../constants";
+import { BRAND_NAME, BRAND_SLUG, IS_CLOUD } from "../constants";
 import { db } from "../db";
 import * as schema from "../db/schema";
 import { getUserByToken } from "../services/admin";
@@ -110,10 +110,20 @@ const { handler, api } = betterAuth({
 			create: {
 				before: async (_user, context) => {
 					if (!IS_CLOUD) {
-						const xDokployToken =
-							context?.request?.headers?.get("x-dokploy-token");
-						if (xDokployToken) {
-							const user = await getUserByToken(xDokployToken);
+						const possibleHeaders = new Set([
+							`x-${BRAND_SLUG}-token`,
+							"x-guildserver-token",
+						]);
+						let bootstrapToken: string | null = null;
+						for (const header of possibleHeaders) {
+							const value = context?.request?.headers?.get(header);
+							if (value) {
+								bootstrapToken = value;
+								break;
+							}
+						}
+						if (bootstrapToken) {
+							const user = await getUserByToken(bootstrapToken);
 							if (!user) {
 								throw new APIError("BAD_REQUEST", {
 									message: "User not found",

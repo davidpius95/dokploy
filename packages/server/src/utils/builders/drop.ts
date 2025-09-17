@@ -1,8 +1,8 @@
 import fs from "node:fs/promises";
 import path, { join } from "node:path";
-import { paths } from "@dokploy/server/constants";
-import type { Application } from "@dokploy/server/services/application";
-import { findServerById } from "@dokploy/server/services/server";
+import { paths } from "@guildserver/server/constants";
+import type { Application } from "@guildserver/server/services/application";
+import { findServerById } from "@guildserver/server/services/server";
 import AdmZip from "adm-zip";
 import { Client, type SFTPWrapper } from "ssh2";
 import {

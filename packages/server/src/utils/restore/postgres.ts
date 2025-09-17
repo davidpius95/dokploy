@@ -1,6 +1,6 @@
-import type { apiRestoreBackup } from "@dokploy/server/db/schema";
-import type { Destination } from "@dokploy/server/services/destination";
-import type { Postgres } from "@dokploy/server/services/postgres";
+import type { apiRestoreBackup } from "@guildserver/server/db/schema";
+import type { Destination } from "@guildserver/server/services/destination";
+import type { Postgres } from "@guildserver/server/services/postgres";
 import type { z } from "zod";
 import { getS3Credentials } from "../backups/utils";
 import { execAsync, execAsyncRemote } from "../process/execAsync";

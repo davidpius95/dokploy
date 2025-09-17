@@ -1,13 +1,13 @@
 import { createWriteStream } from "node:fs";
 import path from "node:path";
-import { paths } from "@dokploy/server/constants";
-import type { Schedule } from "@dokploy/server/db/schema/schedule";
+import { paths } from "@guildserver/server/constants";
+import type { Schedule } from "@guildserver/server/db/schema/schedule";
 import {
 	createDeploymentSchedule,
 	updateDeployment,
-} from "@dokploy/server/services/deployment";
-import { updateDeploymentStatus } from "@dokploy/server/services/deployment";
-import { findScheduleById } from "@dokploy/server/services/schedule";
+} from "@guildserver/server/services/deployment";
+import { updateDeploymentStatus } from "@guildserver/server/services/deployment";
+import { findScheduleById } from "@guildserver/server/services/schedule";
 import { scheduleJob as scheduleJobNode, scheduledJobs } from "node-schedule";
 import { getComposeContainer, getServiceContainer } from "../docker/utils";
 import { execAsyncRemote } from "../process/execAsync";
@@ -107,7 +107,7 @@ export const runCommand = async (scheduleId: string) => {
 				throw error;
 			}
 		}
-	} else if (scheduleType === "dokploy-server") {
+	} else if (scheduleType === "guildserver-server") {
 		try {
 			const writeStream = createWriteStream(deployment.logPath, { flags: "a" });
 			const { SCHEDULES_PATH } = paths();

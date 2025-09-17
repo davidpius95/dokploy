@@ -3,7 +3,9 @@ import path from "node:path";
 import type { ContainerCreateOptions, CreateServiceOptions } from "dockerode";
 import { dump } from "js-yaml";
 import { paths } from "../constants";
+import { pullRemoteImage } from "../utils/docker/utils";
 import { getRemoteDocker } from "../utils/servers/remote-docker";
+import { ensureService } from "./service-utils";
 import type { FileConfig } from "../utils/traefik/file-types";
 import type { MainTraefikConfig } from "../utils/traefik/types";
 
@@ -32,7 +34,7 @@ export const initializeStandaloneTraefik = async ({
 }: TraefikOptions = {}) => {
 	const { MAIN_TRAEFIK_PATH, DYNAMIC_TRAEFIK_PATH } = paths(!!serverId);
 	const imageName = `traefik:v${TRAEFIK_VERSION}`;
-	const containerName = "dokploy-traefik";
+	const containerName = "guildserver-traefik";
 
 	const exposedPorts: Record<string, {}> = {
 		[`${TRAEFIK_PORT}/tcp`]: {},
@@ -68,7 +70,7 @@ export const initializeStandaloneTraefik = async ({
 		Image: imageName,
 		NetworkingConfig: {
 			EndpointsConfig: {
-				"dokploy-network": {},
+				"guildserver-network": {},
 			},
 		},
 		ExposedPorts: exposedPorts,
@@ -78,7 +80,7 @@ export const initializeStandaloneTraefik = async ({
 			},
 			Binds: [
 				`${MAIN_TRAEFIK_PATH}/traefik.yml:/etc/traefik/traefik.yml`,
-				`${DYNAMIC_TRAEFIK_PATH}:/etc/dokploy/traefik/dynamic`,
+				`${DYNAMIC_TRAEFIK_PATH}:/etc/guildserver/traefik/dynamic`,
 				"/var/run/docker.sock:/var/run/docker.sock",
 			],
 			PortBindings: portBindings,
@@ -106,7 +108,7 @@ export const initializeTraefikService = async ({
 }: TraefikOptions) => {
 	const { MAIN_TRAEFIK_PATH, DYNAMIC_TRAEFIK_PATH } = paths(!!serverId);
 	const imageName = `traefik:v${TRAEFIK_VERSION}`;
-	const appName = "dokploy-traefik";
+	const appName = "guildserver-traefik";
 
 	const settings: CreateServiceOptions = {
 		Name: appName,
@@ -123,7 +125,7 @@ export const initializeTraefikService = async ({
 					{
 						Type: "bind",
 						Source: DYNAMIC_TRAEFIK_PATH,
-						Target: "/etc/dokploy/traefik/dynamic",
+						Target: "/etc/guildserver/traefik/dynamic",
 					},
 					{
 						Type: "bind",
@@ -132,7 +134,7 @@ export const initializeTraefikService = async ({
 					},
 				],
 			},
-			Networks: [{ Target: "dokploy-network" }],
+			Networks: [{ Target: "guildserver-network" }],
 			Placement: {
 				Constraints: ["node.role==manager"],
 			},
@@ -172,36 +174,42 @@ export const initializeTraefikService = async ({
 			],
 		},
 	};
-	const docker = await getRemoteDocker(serverId);
-	try {
-		const service = docker.getService(appName);
-		const inspect = await service.inspect();
 
-		await service.update({
-			version: Number.parseInt(inspect.Version.Index),
-			...settings,
+	const dockerClient = await getRemoteDocker(serverId);
+	const pullImageFn = serverId
+		? (image: string) => pullRemoteImage(image, serverId)
+		: undefined;
+
+	await ensureService({
+		containerName: appName,
+		imageName,
+		logLabel: "Traefik",
+		dockerClient,
+		pullImageFn,
+		onUpdateSettings: ({ settings: currentSettings, inspect }) => ({
+			...currentSettings,
 			TaskTemplate: {
-				...settings.TaskTemplate,
-				ForceUpdate: inspect.Spec.TaskTemplate.ForceUpdate + 1,
+				...currentSettings.TaskTemplate,
+				ForceUpdate:
+					(typeof inspect.Spec?.TaskTemplate?.ForceUpdate === "number"
+						? inspect.Spec.TaskTemplate.ForceUpdate
+						: 0) + 1,
 			},
-		});
-		console.log("Traefik Updated ✅");
-	} catch {
-		await docker.createService(settings);
-		console.log("Traefik Started ✅");
-	}
+		}),
+		settings,
+	});
 };
 
 export const createDefaultServerTraefikConfig = () => {
 	const { DYNAMIC_TRAEFIK_PATH } = paths();
-	const configFilePath = path.join(DYNAMIC_TRAEFIK_PATH, "dokploy.yml");
+	const configFilePath = path.join(DYNAMIC_TRAEFIK_PATH, "guildserver.yml");
 
 	if (existsSync(configFilePath)) {
 		console.log("Default traefik config already exists");
 		return;
 	}
 
-	const appName = "dokploy";
+	const appName = "guildserver";
 	const serviceURLDefault = `http://${appName}:${process.env.PORT || 3000}`;
 	const config: FileConfig = {
 		http: {
@@ -253,11 +261,11 @@ export const getDefaultTraefikConfig = () => {
 						docker: {
 							exposedByDefault: false,
 							watch: true,
-							network: "dokploy-network",
+							network: "guildserver-network",
 						},
 					}),
 			file: {
-				directory: "/etc/dokploy/traefik/dynamic",
+				directory: "/etc/guildserver/traefik/dynamic",
 				watch: true,
 			},
 		},
@@ -287,7 +295,7 @@ export const getDefaultTraefikConfig = () => {
 				letsencrypt: {
 					acme: {
 						email: "test@localhost.com",
-						storage: "/etc/dokploy/traefik/dynamic/acme.json",
+						storage: "/etc/guildserver/traefik/dynamic/acme.json",
 						httpChallenge: {
 							entryPoint: "web",
 						},
@@ -312,10 +320,10 @@ export const getDefaultServerTraefikConfig = () => {
 			docker: {
 				exposedByDefault: false,
 				watch: true,
-				network: "dokploy-network",
+				network: "guildserver-network",
 			},
 			file: {
-				directory: "/etc/dokploy/traefik/dynamic",
+				directory: "/etc/guildserver/traefik/dynamic",
 				watch: true,
 			},
 		},
@@ -342,7 +350,7 @@ export const getDefaultServerTraefikConfig = () => {
 			letsencrypt: {
 				acme: {
 					email: "test@localhost.com",
-					storage: "/etc/dokploy/traefik/dynamic/acme.json",
+					storage: "/etc/guildserver/traefik/dynamic/acme.json",
 					httpChallenge: {
 						entryPoint: "web",
 					},

@@ -1,9 +1,12 @@
 import path from "path";
 
-const rawBrandName = process.env.BRAND_NAME?.trim();
+const normalize = (value?: string | null) =>
+	value && value.trim().length > 0 ? value.trim() : undefined;
+
+const rawBrandName = normalize(process.env.BRAND_NAME);
 const fallbackBrandName = "GuildServer";
-const brandName = rawBrandName && rawBrandName.length > 0 ? rawBrandName : fallbackBrandName;
-const rawBrandSlug = process.env.BRAND_SLUG?.trim();
+const brandName = rawBrandName ?? fallbackBrandName;
+const rawBrandSlug = normalize(process.env.BRAND_SLUG);
 const inferredBrandSlug = brandName
 	.toLowerCase()
 	.replace(/[^a-z0-9]+/g, "-")
@@ -11,6 +14,32 @@ const inferredBrandSlug = brandName
 
 export const BRAND_NAME = brandName;
 export const BRAND_SLUG = rawBrandSlug && rawBrandSlug.length > 0 ? rawBrandSlug : inferredBrandSlug;
+
+const defaultWebsiteUrl = "https://guildserver.com";
+const defaultGithubUrl = "https://github.com/GuildServer/guildserver";
+const defaultDocsUrl = "https://docs.guildserver.com";
+
+const resolveEnv = (...values: Array<string | undefined>) => {
+	for (const value of values) {
+		const normalized = normalize(value);
+		if (normalized) {
+			return normalized;
+		}
+	}
+	return undefined;
+};
+
+export const BRAND_WEBSITE_URL =
+	resolveEnv(process.env.BRAND_WEBSITE_URL, process.env.NEXT_PUBLIC_BRAND_WEBSITE_URL) ??
+	defaultWebsiteUrl;
+
+export const BRAND_GITHUB_URL =
+	resolveEnv(process.env.BRAND_GITHUB_URL, process.env.NEXT_PUBLIC_BRAND_GITHUB_URL) ??
+	defaultGithubUrl;
+
+export const BRAND_DOCS_URL =
+	resolveEnv(process.env.BRAND_DOCS_URL, process.env.NEXT_PUBLIC_BRAND_DOCS_URL) ??
+	defaultDocsUrl;
 
 export const IS_CLOUD = process.env.IS_CLOUD === "true";
 export const STRIPE_ENABLED = process.env.STRIPE_ENABLED !== "false"; // Default to true unless explicitly set to false

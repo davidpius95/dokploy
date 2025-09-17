@@ -1,11 +1,11 @@
-name: Dokploy Monitoring Build
+name: GuildServer Monitoring Build
 
 on:
   push:
     branches: [main, canary]
 
 env:
-  IMAGE_NAME: dokploy/monitoring
+  IMAGE_NAME: guildserver/monitoring
 
 jobs:
   docker-amd:

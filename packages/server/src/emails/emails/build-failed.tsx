@@ -12,6 +12,11 @@ import {
 	Tailwind,
 	Text,
 } from "@react-email/components";
+import {
+	BRAND_NAME,
+	BRAND_SLUG,
+	BRAND_WEBSITE_URL,
+} from "@guildserver/server/constants";
 
 export type TemplateProps = {
 	projectName: string;
@@ -22,15 +27,16 @@ export type TemplateProps = {
 	date: string;
 };
 
-export const BuildFailedEmail = ({
-	projectName = "dokploy",
-	applicationName = "frontend",
-	applicationType = "application",
-	errorMessage = "Error array.length is not a function",
-	buildLink = "https://dokploy.com/projects/dokploy-test/applications/dokploy-test",
-	date = "2023-05-01T00:00:00.000Z",
-}: TemplateProps) => {
-	const previewText = `Build failed for ${applicationName}`;
+export const BuildFailedEmail = (props: TemplateProps) => {
+	const {
+		projectName = BRAND_SLUG,
+		applicationName = "frontend",
+		applicationType = "application",
+		errorMessage = "Error array.length is not a function",
+		buildLink = BRAND_WEBSITE_URL,
+		date = "2023-05-01T00:00:00.000Z",
+	} = props;
+	const previewText = `Build failed for ${applicationName} on ${BRAND_NAME}`;
 	return (
 		<Html>
 			<Head />
@@ -51,11 +57,11 @@ export const BuildFailedEmail = ({
 						<Section className="mt-[32px]">
 							<Img
 								src={
-									"https://raw.githubusercontent.com/Dokploy/dokploy/refs/heads/canary/apps/dokploy/logo.png"
+									"https://raw.githubusercontent.com/GuildServer/guildserver/refs/heads/canary/apps/guildserver/logo.png"
 								}
 								width="100"
 								height="50"
-								alt="Dokploy"
+								alt={BRAND_NAME}
 								className="my-0 mx-auto"
 							/>
 						</Section>

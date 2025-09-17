@@ -10,6 +10,7 @@ import {
 	Tailwind,
 	Text,
 } from "@react-email/components";
+import { BRAND_NAME } from "@guildserver/server/constants";
 
 export type TemplateProps = {
 	message: string;
@@ -17,10 +18,10 @@ export type TemplateProps = {
 };
 
 export const DockerCleanupEmail = ({
-	message = "Docker cleanup for dokploy",
+	message = `Docker cleanup for ${BRAND_NAME}`,
 	date = "2023-05-01T00:00:00.000Z",
 }: TemplateProps) => {
-	const previewText = "Docker cleanup for dokploy";
+	const previewText = `Docker cleanup for ${BRAND_NAME}`;
 	return (
 		<Html>
 			<Preview>{previewText}</Preview>
@@ -42,22 +43,22 @@ export const DockerCleanupEmail = ({
 						<Section className="mt-[32px]">
 							<Img
 								src={
-									"https://raw.githubusercontent.com/Dokploy/dokploy/refs/heads/canary/apps/dokploy/logo.png"
+									"https://raw.githubusercontent.com/GuildServer/guildserver/refs/heads/canary/apps/guildserver/logo.png"
 								}
 								width="100"
 								height="50"
-								alt="Dokploy"
+								alt={BRAND_NAME}
 								className="my-0 mx-auto"
 							/>
 						</Section>
 						<Heading className="text-black text-[24px] font-normal text-center p-0 my-[30px] mx-0">
-							Docker cleanup for <strong>dokploy</strong>
+							Docker cleanup for <strong>{BRAND_NAME}</strong>
 						</Heading>
 						<Text className="text-black text-[14px] leading-[24px]">
 							Hello,
 						</Text>
 						<Text className="text-black text-[14px] leading-[24px]">
-							The docker cleanup for <strong>dokploy</strong> was successful ✅
+							The docker cleanup for <strong>{BRAND_NAME}</strong> was successful ✅
 						</Text>
 
 						<Section className="flex text-black text-[14px]  leading-[24px] bg-[#F4F4F5] rounded-lg p-2">

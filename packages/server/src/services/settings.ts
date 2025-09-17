@@ -1,10 +1,10 @@
 import { readdirSync } from "node:fs";
 import { join } from "node:path";
-import { docker } from "@dokploy/server/constants/docker";
+import { docker } from "@guildserver/server/constants/docker";
 import {
   execAsync,
   execAsyncRemote,
-} from "@dokploy/server/utils/process/execAsync";
+} from "@guildserver/server/utils/process/execAsync";
 import {
   initializeStandaloneTraefik,
   initializeTraefikService,
@@ -21,17 +21,21 @@ export const DEFAULT_UPDATE_DATA: IUpdateData = {
   updateAvailable: false,
 };
 
-/** Returns current Dokploy docker image tag or `latest` by default. */
-export const getDokployImageTag = () => {
+/** Returns current GuildServer docker image tag or `latest` by default. */
+export const getGuildServerImageTag = () => {
   return process.env.RELEASE_TAG || "latest";
 };
 
-export const getDokployImage = () => {
-  return `dokploy/dokploy:${getDokployImageTag()}`;
+export const getBrandImageTag = getGuildServerImageTag;
+
+export const getGuildServerImage = () => {
+  return `guildserver/guildserver:${getGuildServerImageTag()}`;
 };
 
+export const getBrandImage = getGuildServerImage;
+
 export const pullLatestRelease = async () => {
-  const stream = await docker.pull(getDokployImage());
+  const stream = await docker.pull(getGuildServerImage());
   await new Promise((resolve, reject) => {
     docker.modem.followProgress(stream, (err, res) =>
       err ? reject(err) : resolve(res)
@@ -39,10 +43,10 @@ export const pullLatestRelease = async () => {
   });
 };
 
-/** Returns Dokploy docker service image digest */
+/** Returns GuildServer docker service image digest */
 export const getServiceImageDigest = async () => {
   const { stdout } = await execAsync(
-    "docker service inspect dokploy --format '{{.Spec.TaskTemplate.ContainerSpec.Image}}'"
+    "docker service inspect guildserver --format '{{.Spec.TaskTemplate.ContainerSpec.Image}}'"
   );
 
   const currentDigest = stdout.trim().split("@")[1];
@@ -62,11 +66,11 @@ export const getUpdateData = async (): Promise<IUpdateData> => {
   } catch {
     // Docker service might not exist locally
     // You can run the # Installation command for docker service create mentioned in the below docs to test it locally:
-    // https://docs.dokploy.com/docs/core/manual-installation
+    // https://docs.guildserver.com/docs/core/manual-installation
     return DEFAULT_UPDATE_DATA;
   }
 
-  const baseUrl = "https://hub.docker.com/v2/repositories/dokploy/dokploy/tags";
+  const baseUrl = "https://hub.docker.com/v2/repositories/guildserver/guildserver/tags";
   let url: string | null = `${baseUrl}?page_size=100`;
   let allResults: { digest: string; name: string }[] = [];
   while (url) {
@@ -84,7 +88,7 @@ export const getUpdateData = async (): Promise<IUpdateData> => {
     url = data?.next;
   }
 
-  const imageTag = getDokployImageTag();
+  const imageTag = getGuildServerImageTag();
   const searchedDigest = allResults.find((t) => t.name === imageTag)?.digest;
 
   if (!searchedDigest) {
@@ -393,7 +397,7 @@ export const readPorts = async (
 
 export const writeTraefikSetup = async (input: TraefikOptions) => {
   const resourceType = await getDockerResourceType(
-    "dokploy-traefik",
+    "guildserver-traefik",
     input.serverId
   );
   if (resourceType === "service") {

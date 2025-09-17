@@ -52,11 +52,6 @@ export * from "./setup/setup";
 export * from "./setup/traefik-setup";
 export * from "./templates/processors";
 export * from "./utils/access-log/handler";
-export {
-  getLogCleanupStatus,
-  startLogCleanup,
-  stopLogCleanup,
-} from "./utils/access-log/handler";
 export * from "./utils/access-log/types";
 export * from "./utils/access-log/utils";
 export * from "./utils/backups/compose";
@@ -95,7 +90,7 @@ export * from "./utils/notifications/build-error";
 export * from "./utils/notifications/build-success";
 export * from "./utils/notifications/database-backup";
 export * from "./utils/notifications/docker-cleanup";
-export * from "./utils/notifications/dokploy-restart";
+export * from "./utils/notifications/guildserver-restart";
 export * from "./utils/notifications/server-threshold";
 export * from "./utils/notifications/utils";
 export * from "./utils/process/execAsync";
@@ -104,7 +99,6 @@ export * from "./utils/providers/bitbucket";
 export * from "./utils/providers/docker";
 export * from "./utils/providers/git";
 export * from "./utils/providers/gitea";
-export * from "./utils/providers/github";
 export * from "./utils/providers/github";
 export * from "./utils/providers/gitlab";
 export * from "./utils/providers/raw";

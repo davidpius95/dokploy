@@ -135,7 +135,8 @@ export function processValue(
 			if (params.length === 1 && params[0] && params[0].match(/^\d{1,3}$/)) {
 				return generateJwt({ length: Number.parseInt(params[0], 10) });
 			}
-			let [secret, payload] = params;
+			let [secret, payloadCandidate] = params;
+			let payload: unknown = payloadCandidate;
 			if (typeof payload === "string" && variables[payload]) {
 				payload = variables[payload];
 			}
@@ -155,8 +156,13 @@ export function processValue(
 			if (typeof payload !== "object") {
 				payload = undefined;
 			}
+			const resolvedSecretRaw = secret ? variables[secret] ?? secret : undefined;
+			const resolvedSecret =
+				typeof resolvedSecretRaw === "string"
+					? resolvedSecretRaw
+					: undefined;
 			return generateJwt({
-				secret: secret ? variables[secret] || secret : undefined,
+				secret: resolvedSecret,
 				payload: payload as any,
 			});
 		}

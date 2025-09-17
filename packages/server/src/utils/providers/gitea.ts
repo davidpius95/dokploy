@@ -1,13 +1,13 @@
 import { createWriteStream } from "node:fs";
 import { join } from "node:path";
-import { paths } from "@dokploy/server/constants";
-import type { Compose } from "@dokploy/server/services/compose";
+import { paths } from "@guildserver/server/constants";
+import type { Compose } from "@guildserver/server/services/compose";
 import {
 	findGiteaById,
 	type Gitea,
 	updateGitea,
-} from "@dokploy/server/services/gitea";
-import type { InferResultType } from "@dokploy/server/types/with";
+} from "@guildserver/server/services/gitea";
+import type { InferResultType } from "@guildserver/server/types/with";
 import { TRPCError } from "@trpc/server";
 import { recreateDirectory } from "../filesystem/directory";
 import { execAsyncRemote } from "../process/execAsync";

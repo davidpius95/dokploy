@@ -1,10 +1,10 @@
-import { db } from "@dokploy/server/db";
+import { db } from "@guildserver/server/db";
 import {
 	invitation,
 	member,
 	organization,
 	users_temp,
-} from "@dokploy/server/db/schema";
+} from "@guildserver/server/db/schema";
 import { TRPCError } from "@trpc/server";
 import { eq } from "drizzle-orm";
 import { IS_CLOUD } from "../constants";
@@ -103,7 +103,7 @@ export const removeUserById = async (userId: string) => {
 		.then((res) => res[0]);
 };
 
-export const getDokployUrl = async () => {
+export const getPlatformUrl = async () => {
 	if (IS_CLOUD && process.env.PUBLIC_APP_URL) {
 		return process.env.PUBLIC_APP_URL;
 	}
@@ -114,3 +114,5 @@ export const getDokployUrl = async () => {
 	}
 	return `http://${admin.user.serverIp}:${process.env.PORT}`;
 };
+
+export const getGuildServerUrl = getPlatformUrl;

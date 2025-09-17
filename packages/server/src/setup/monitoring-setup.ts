@@ -1,42 +1,84 @@
-import { findServerById } from "@dokploy/server/services/server";
+import { dirname } from "node:path";
+import { findServerById } from "@guildserver/server/services/server";
+import type Dockerode from "dockerode";
 import type { ContainerCreateOptions } from "dockerode";
 import { IS_CLOUD } from "../constants";
 import { findUserById } from "../services/admin";
-import { getDokployImageTag } from "../services/settings";
+import { getGuildServerImageTag } from "../services/settings";
 import { pullImage, pullRemoteImage } from "../utils/docker/utils";
 import { execAsync, execAsyncRemote } from "../utils/process/execAsync";
 import { getRemoteDocker } from "../utils/servers/remote-docker";
 
-export const setupMonitoring = async (serverId: string) => {
-	const server = await findServerById(serverId);
+const DEFAULT_MONITORING_CONTAINER = "guildserver-monitoring";
+const DEFAULT_MONITORING_STORAGE_PATH = "/etc/guildserver/monitoring/monitoring.db";
 
-	const containerName = "dokploy-monitoring";
-	let imageName = "dokploy/monitoring:latest";
+const buildStoragePrepCommand = (storagePath: string) => {
+	const directory = dirname(storagePath);
+	return `mkdir -p ${directory} && touch ${storagePath}`;
+};
 
-	if (
-		(getDokployImageTag() !== "latest" ||
-			process.env.NODE_ENV === "development") &&
-		!IS_CLOUD
-	) {
-		imageName = "dokploy/monitoring:canary";
+type MetricsConfig = {
+	server?: {
+		port?: unknown;
+	};
+} | null;
+
+export const resolveMetricsPort = (
+	metricsConfig: MetricsConfig,
+	context: string,
+) => {
+	const port = metricsConfig?.server?.port;
+
+	if (typeof port !== "number" || Number.isNaN(port)) {
+		throw new Error(`Metrics port is not configured for ${context}`);
 	}
 
-	const settings: ContainerCreateOptions = {
+	return port;
+};
+
+const resolveImageName = () => {
+	const shouldUseCanary =
+		(getGuildServerImageTag() !== "latest" || process.env.NODE_ENV === "development") &&
+		!IS_CLOUD;
+
+	return shouldUseCanary ? "guildserver/monitoring:canary" : "guildserver/monitoring:latest";
+};
+
+const isStatusCodeError = (error: unknown, statusCode: number) =>
+	typeof error === "object" &&
+	error !== null &&
+	"statusCode" in error &&
+	typeof (error as { statusCode?: unknown }).statusCode === "number" &&
+	(error as { statusCode: number }).statusCode === statusCode;
+
+const buildMonitoringSettings = ({
+	imageName,
+	metricsConfig,
+	port,
+	networkMode,
+	containerName = DEFAULT_MONITORING_CONTAINER,
+	storagePath = DEFAULT_MONITORING_STORAGE_PATH,
+}: {
+	imageName: string;
+	metricsConfig: unknown;
+	port: number;
+	networkMode?: string;
+	containerName?: string;
+	storagePath?: string;
+}): ContainerCreateOptions => {
+	const portString = port.toString();
+	const serializedMetrics = JSON.stringify(metricsConfig) ?? "undefined";
+
+	return {
 		name: containerName,
-		Env: [`METRICS_CONFIG=${JSON.stringify(server?.metricsConfig)}`],
+		Env: [`METRICS_CONFIG=${serializedMetrics}`],
 		Image: imageName,
 		HostConfig: {
-			// Memory: 100 * 1024 * 1024, // 100MB en bytes
-			// PidMode: "host",
-			// CapAdd: ["NET_ADMIN", "SYS_ADMIN"],
-			// Privileged: true,
-			RestartPolicy: {
-				Name: "always",
-			},
+			RestartPolicy: { Name: "always" },
 			PortBindings: {
-				[`${server.metricsConfig.server.port}/tcp`]: [
+				[`${portString}/tcp`]: [
 					{
-						HostPort: server.metricsConfig.server.port.toString(),
+						HostPort: portString,
 					},
 				],
 			},
@@ -45,110 +87,114 @@ export const setupMonitoring = async (serverId: string) => {
 				"/sys:/host/sys:ro",
 				"/etc/os-release:/etc/os-release:ro",
 				"/proc:/host/proc:ro",
-				"/etc/dokploy/monitoring/monitoring.db:/app/monitoring.db",
+				`${storagePath}:/app/monitoring.db`,
 			],
-			NetworkMode: "host",
+			...(networkMode ? { NetworkMode: networkMode } : {}),
 		},
 		ExposedPorts: {
-			[`${server.metricsConfig.server.port}/tcp`]: {},
+			[`${portString}/tcp`]: {},
 		},
 	};
-	const docker = await getRemoteDocker(serverId);
+};
+
+const ensureMonitoringContainer = async ({
+	docker,
+	metricsConfig,
+	port,
+	prepareStorage,
+	pullImageFn,
+	networkMode,
+	context,
+	containerName = DEFAULT_MONITORING_CONTAINER,
+	storagePath = DEFAULT_MONITORING_STORAGE_PATH,
+}: {
+	docker: Dockerode;
+	metricsConfig: unknown;
+	port: number;
+	prepareStorage: (storagePath: string) => Promise<void>;
+	pullImageFn: (image: string) => Promise<void>;
+	networkMode?: string;
+	context: string;
+	containerName?: string;
+	storagePath?: string;
+}) => {
+	const imageName = resolveImageName();
+	const settings = buildMonitoringSettings({
+		imageName,
+		metricsConfig,
+		port,
+		networkMode,
+		containerName,
+		storagePath,
+	});
+
+	await prepareStorage(storagePath);
+	await pullImageFn(imageName);
+
+	const container = docker.getContainer(containerName);
+
 	try {
-		await execAsyncRemote(
-			serverId,
-			"mkdir -p /etc/dokploy/monitoring && touch /etc/dokploy/monitoring/monitoring.db",
-		);
-		if (serverId) {
-			await pullRemoteImage(imageName, serverId);
-		}
-
-		// Check if container exists
-		const container = docker.getContainer(containerName);
-		try {
-			await container.inspect();
-			await container.remove({ force: true });
-			console.log("Removed existing container");
-		} catch {
-			// Container doesn't exist, continue
-		}
-
-		await docker.createContainer(settings);
-		const newContainer = docker.getContainer(containerName);
-		await newContainer.start();
-
-		console.log("Monitoring Started ");
+		await container.inspect();
+		await container.remove({ force: true });
+		console.log(`[Monitoring] Removed existing container (${context})`);
 	} catch (error) {
-		console.log("Monitoring Not Found: Starting ", error);
+		if (!isStatusCodeError(error, 404)) {
+			throw error;
+		}
+	}
+
+	await docker.createContainer(settings);
+	const newContainer = docker.getContainer(containerName);
+	await newContainer.start();
+
+	console.log(`[Monitoring] Container started (${context}) ✅`);
+};
+
+export const setupMonitoring = async (serverId: string) => {
+	const server = await findServerById(serverId);
+
+	try {
+		const port = resolveMetricsPort(server?.metricsConfig ?? null, "the server");
+
+		const docker = await getRemoteDocker(serverId);
+
+		await ensureMonitoringContainer({
+			docker,
+			metricsConfig: server.metricsConfig,
+			port,
+			networkMode: "host",
+			prepareStorage: async (storagePath) => {
+				const command = buildStoragePrepCommand(storagePath);
+				await execAsyncRemote(serverId, command);
+			},
+			pullImageFn: (image) => pullRemoteImage(image, serverId),
+			context: "remote",
+		});
+	} catch (error) {
+		console.log("[Monitoring] Failed to setup remote monitoring", error);
 	}
 };
 
 export const setupWebMonitoring = async (userId: string) => {
 	const user = await findUserById(userId);
 
-	const containerName = "dokploy-monitoring";
-	let imageName = "dokploy/monitoring:latest";
-
-	if (
-		(getDokployImageTag() !== "latest" ||
-			process.env.NODE_ENV === "development") &&
-		!IS_CLOUD
-	) {
-		imageName = "dokploy/monitoring:canary";
-	}
-
-	const settings: ContainerCreateOptions = {
-		name: containerName,
-		Env: [`METRICS_CONFIG=${JSON.stringify(user?.metricsConfig)}`],
-		Image: imageName,
-		HostConfig: {
-			// Memory: 100 * 1024 * 1024, // 100MB en bytes
-			// PidMode: "host",
-			// CapAdd: ["NET_ADMIN", "SYS_ADMIN"],
-			// Privileged: true,
-			RestartPolicy: {
-				Name: "always",
-			},
-			PortBindings: {
-				[`${user?.metricsConfig?.server?.port}/tcp`]: [
-					{
-						HostPort: user?.metricsConfig?.server?.port.toString(),
-					},
-				],
-			},
-			Binds: [
-				"/var/run/docker.sock:/var/run/docker.sock:ro",
-				"/sys:/host/sys:ro",
-				"/etc/os-release:/etc/os-release:ro",
-				"/proc:/host/proc:ro",
-				"/etc/dokploy/monitoring/monitoring.db:/app/monitoring.db",
-			],
-			// NetworkMode: "host",
-		},
-		ExposedPorts: {
-			[`${user?.metricsConfig?.server?.port}/tcp`]: {},
-		},
-	};
-	const docker = await getRemoteDocker();
 	try {
-		await execAsync(
-			"mkdir -p /etc/dokploy/monitoring && touch /etc/dokploy/monitoring/monitoring.db",
-		);
-		await pullImage(imageName);
+		const port = resolveMetricsPort(user?.metricsConfig ?? null, "the admin user");
 
-		const container = docker.getContainer(containerName);
-		try {
-			await container.inspect();
-			await container.remove({ force: true });
-			console.log("Removed existing container");
-		} catch {}
+		const docker = await getRemoteDocker();
 
-		await docker.createContainer(settings);
-		const newContainer = docker.getContainer(containerName);
-		await newContainer.start();
-
-		console.log("Monitoring Started ");
+		await ensureMonitoringContainer({
+			docker,
+			metricsConfig: user?.metricsConfig,
+			port,
+			prepareStorage: async (storagePath) => {
+				const command = buildStoragePrepCommand(storagePath);
+				await execAsync(command);
+			},
+			pullImageFn: pullImage,
+			context: "local",
+		});
 	} catch (error) {
-		console.log("Monitoring Not Found: Starting ", error);
+		console.log("[Monitoring] Failed to setup local monitoring", error);
 	}
 };

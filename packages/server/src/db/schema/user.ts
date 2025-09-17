@@ -1,4 +1,4 @@
-import { paths } from "@dokploy/server/constants";
+import { paths } from "@guildserver/server/constants";
 import { relations } from "drizzle-orm";
 import {
 	boolean,
@@ -65,7 +65,7 @@ export const users_temp = pgTable("user_temp", {
 	metricsConfig: jsonb("metricsConfig")
 		.$type<{
 			server: {
-				type: "Dokploy" | "Remote";
+				type: "GuildServer" | "Remote";
 				refreshRate: number;
 				port: number;
 				token: string;
@@ -88,7 +88,7 @@ export const users_temp = pgTable("user_temp", {
 		.notNull()
 		.default({
 			server: {
-				type: "Dokploy",
+				type: "GuildServer",
 				refreshRate: 60,
 				port: 4500,
 				token: "",
@@ -327,7 +327,7 @@ export const apiUpdateUser = createSchema.partial().extend({
 	metricsConfig: z
 		.object({
 			server: z.object({
-				type: z.enum(["Dokploy", "Remote"]),
+				type: z.enum(["GuildServer", "Remote"]),
 				refreshRate: z.number(),
 				port: z.number(),
 				token: z.string(),

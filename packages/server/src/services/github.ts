@@ -1,12 +1,13 @@
-import { db } from "@dokploy/server/db";
+import { db } from "@guildserver/server/db";
 import {
 	type apiCreateGithub,
 	gitProvider,
 	github,
-} from "@dokploy/server/db/schema";
+} from "@guildserver/server/db/schema";
 import { TRPCError } from "@trpc/server";
 import { eq } from "drizzle-orm";
 import { authGithub } from "../utils/providers/github";
+import { BRAND_NAME } from "../constants";
 import { updatePreviewDeployment } from "./preview-deployment";
 
 export type Github = typeof github.$inferSelect;
@@ -185,7 +186,7 @@ export const createPreviewDeploymentComment = async ({
 		owner: owner || "",
 		repo: repository || "",
 		issue_number: Number.parseInt(issue_number),
-		body: `### Dokploy Preview Deployment\n\n${runningComment}`,
+		body: `### ${BRAND_NAME} Preview Deployment\n\n${runningComment}`,
 	});
 
 	return await updatePreviewDeployment(previewDeploymentId, {

@@ -1,6 +1,7 @@
-import { db } from "@dokploy/server/db";
-import { notifications } from "@dokploy/server/db/schema";
-import DatabaseBackupEmail from "@dokploy/server/emails/emails/database-backup";
+import { BRAND_NAME } from "@guildserver/server/constants";
+import { db } from "@guildserver/server/db";
+import { notifications } from "@guildserver/server/db/schema";
+import DatabaseBackupEmail from "@guildserver/server/emails/emails/database-backup";
 import { renderAsync } from "@react-email/components";
 import { format } from "date-fns";
 import { and, eq } from "drizzle-orm";
@@ -61,7 +62,7 @@ export const sendDatabaseBackupNotifications = async ({
 			).catch();
 			await sendEmailNotification(
 				email,
-				"Database backup for dokploy",
+				"Database backup for guildserver",
 				template,
 			);
 		}
@@ -125,7 +126,7 @@ export const sendDatabaseBackupNotifications = async ({
 				],
 				timestamp: date.toISOString(),
 				footer: {
-					text: "Dokploy Database Backup Notification",
+					text: `${BRAND_NAME} Database Backup Notification`,
 				},
 			});
 		}

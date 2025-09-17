@@ -1,7 +1,7 @@
 import { existsSync, promises as fsPromises } from "node:fs";
 import path from "node:path";
-import { paths } from "@dokploy/server/constants";
-import { db } from "@dokploy/server/db";
+import { paths } from "@guildserver/server/constants";
+import { db } from "@guildserver/server/db";
 import {
 	type apiCreateDeployment,
 	type apiCreateDeploymentBackup,
@@ -11,8 +11,8 @@ import {
 	type apiCreateDeploymentServer,
 	type apiCreateDeploymentVolumeBackup,
 	deployments,
-} from "@dokploy/server/db/schema";
-import { removeDirectoryIfExistsContent } from "@dokploy/server/utils/filesystem/directory";
+} from "@guildserver/server/db/schema";
+import { removeDirectoryIfExistsContent } from "@guildserver/server/utils/filesystem/directory";
 import { TRPCError } from "@trpc/server";
 import { format } from "date-fns";
 import { desc, eq } from "drizzle-orm";
@@ -24,7 +24,7 @@ import {
 import { type Compose, findComposeById, updateCompose } from "./compose";
 import { type Server, findServerById } from "./server";
 
-import { execAsyncRemote } from "@dokploy/server/utils/process/execAsync";
+import { execAsyncRemote } from "@guildserver/server/utils/process/execAsync";
 import { findBackupById } from "./backup";
 import {
 	type PreviewDeployment,

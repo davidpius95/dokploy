@@ -1,5 +1,5 @@
 {
-	"name": "@dokploy/api",
+	"name": "@guildserver/api",
 	"version": "0.0.1",
 	"type": "module",
 	"scripts": {
@@ -9,7 +9,7 @@
 		"typecheck": "tsc --noEmit"
 	},
 	"dependencies": {
-		"@dokploy/server": "workspace:*",
+		"@guildserver/server": "workspace:*",
 		"@hono/node-server": "^1.14.3",
 		"@hono/zod-validator": "0.3.0",
 		"@nerimity/mimiqueue": "1.2.3",

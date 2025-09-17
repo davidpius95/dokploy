@@ -1,7 +1,8 @@
-import { db } from "@dokploy/server/db";
-import { notifications } from "@dokploy/server/db/schema";
-import BuildSuccessEmail from "@dokploy/server/emails/emails/build-success";
-import type { Domain } from "@dokploy/server/services/domain";
+import { BRAND_NAME } from "@guildserver/server/constants";
+import { db } from "@guildserver/server/db";
+import { notifications } from "@guildserver/server/db/schema";
+import BuildSuccessEmail from "@guildserver/server/emails/emails/build-success";
+import type { Domain } from "@guildserver/server/services/domain";
 import { renderAsync } from "@react-email/components";
 import { format } from "date-fns";
 import { and, eq } from "drizzle-orm";
@@ -59,7 +60,7 @@ export const sendBuildSuccessNotifications = async ({
 					date: date.toLocaleString(),
 				}),
 			).catch();
-			await sendEmailNotification(email, "Build success for dokploy", template);
+			await sendEmailNotification(email, "Build success for guildserver", template);
 		}
 
 		if (discord) {
@@ -107,7 +108,7 @@ export const sendBuildSuccessNotifications = async ({
 				],
 				timestamp: date.toISOString(),
 				footer: {
-					text: "Dokploy Build Notification",
+					text: `${BRAND_NAME} Build Notification`,
 				},
 			});
 		}

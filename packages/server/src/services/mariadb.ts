@@ -1,18 +1,18 @@
-import { db } from "@dokploy/server/db";
+import { db } from "@guildserver/server/db";
 import {
 	type apiCreateMariaDB,
 	backups,
 	mariadb,
-} from "@dokploy/server/db/schema";
-import { buildAppName } from "@dokploy/server/db/schema";
-import { generatePassword } from "@dokploy/server/templates";
-import { buildMariadb } from "@dokploy/server/utils/databases/mariadb";
-import { pullImage } from "@dokploy/server/utils/docker/utils";
+} from "@guildserver/server/db/schema";
+import { buildAppName } from "@guildserver/server/db/schema";
+import { generatePassword } from "@guildserver/server/templates";
+import { buildMariadb } from "@guildserver/server/utils/databases/mariadb";
+import { pullImage } from "@guildserver/server/utils/docker/utils";
 import { TRPCError } from "@trpc/server";
 import { eq, getTableColumns } from "drizzle-orm";
 import { validUniqueServerAppName } from "./project";
 
-import { execAsyncRemote } from "@dokploy/server/utils/process/execAsync";
+import { execAsyncRemote } from "@guildserver/server/utils/process/execAsync";
 
 export type Mariadb = typeof mariadb.$inferSelect;
 

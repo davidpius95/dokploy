@@ -1,4 +1,5 @@
 import { and, eq } from "drizzle-orm";
+import { BRAND_NAME } from "../../constants";
 import { db } from "../../db";
 import { notifications } from "../../db/schema";
 import {
@@ -88,7 +89,7 @@ export const sendServerThresholdNotifications = async (
 				],
 				timestamp: date.toISOString(),
 				footer: {
-					text: "Dokploy Server Monitoring Alert",
+					text: `${BRAND_NAME} Server Monitoring Alert`,
 				},
 			});
 		}

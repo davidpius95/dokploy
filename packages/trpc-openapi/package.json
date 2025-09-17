@@ -1,0 +1,20 @@
+{
+  "name": "@guildserver/trpc-openapi",
+  "version": "0.0.4",
+  "description": "GuildServer tRPC OpenAPI bindings",
+  "license": "MIT",
+  "main": "dist/index.js",
+  "typings": "dist/index.d.ts",
+  "dependencies": {
+    "co-body": "^6.1.0",
+    "h3": "^1.6.4",
+    "lodash.clonedeep": "^4.5.0",
+    "node-mocks-http": "^1.12.2",
+    "openapi-types": "^12.1.1",
+    "zod-to-json-schema": "^3.21.1"
+  },
+  "peerDependencies": {
+    "@trpc/server": "^10.0.0",
+    "zod": "^3.14.4"
+  }
+}

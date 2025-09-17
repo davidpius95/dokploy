@@ -2,6 +2,7 @@ import {
 	sendDiscordNotification,
 	sendEmailNotification,
 } from "../utils/notifications/utils";
+import { BRAND_NAME } from "../constants";
 export const sendEmail = async ({
 	email,
 	subject,
@@ -44,7 +45,7 @@ export const sendDiscordNotificationWelcome = async (email: string) => {
 			],
 			timestamp: new Date(),
 			footer: {
-				text: "Dokploy User Registration Notification",
+				text: `${BRAND_NAME} User Registration Notification`,
 			},
 		},
 	);

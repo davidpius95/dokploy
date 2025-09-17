@@ -14,18 +14,18 @@ RUN apt-get update && apt-get install -y python3 make g++ git python3-pip pkg-co
 # Install dependencies
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
 
-# Deploy only the dokploy app
+# Deploy only the guildserver app
 
 ENV NODE_ENV=production
-RUN pnpm --filter=@dokploy/server build
-RUN pnpm --filter=./apps/dokploy run build
+RUN pnpm --filter=@guildserver/server build
+RUN pnpm --filter=./apps/guildserver run build
 
-RUN pnpm --filter=./apps/dokploy --prod deploy /prod/dokploy
+RUN pnpm --filter=./apps/guildserver --prod deploy /prod/guildserver
 
-RUN cp -R /usr/src/app/apps/dokploy/.next /prod/dokploy/.next
-RUN cp -R /usr/src/app/apps/dokploy/dist /prod/dokploy/dist
+RUN cp -R /usr/src/app/apps/guildserver/.next /prod/guildserver/.next
+RUN cp -R /usr/src/app/apps/guildserver/dist /prod/guildserver/dist
 
-FROM base AS dokploy
+FROM base AS guildserver
 WORKDIR /app
 
 # Set production
@@ -34,15 +34,15 @@ ENV NODE_ENV=production
 RUN apt-get update && apt-get install -y curl unzip zip apache2-utils iproute2 rsync git-lfs && git lfs install && rm -rf /var/lib/apt/lists/*
 
 # Copy only the necessary files
-COPY --from=build /prod/dokploy/.next ./.next
-COPY --from=build /prod/dokploy/dist ./dist
-COPY --from=build /prod/dokploy/next.config.mjs ./next.config.mjs
-COPY --from=build /prod/dokploy/public ./public
-COPY --from=build /prod/dokploy/package.json ./package.json
-COPY --from=build /prod/dokploy/drizzle ./drizzle
+COPY --from=build /prod/guildserver/.next ./.next
+COPY --from=build /prod/guildserver/dist ./dist
+COPY --from=build /prod/guildserver/next.config.mjs ./next.config.mjs
+COPY --from=build /prod/guildserver/public ./public
+COPY --from=build /prod/guildserver/package.json ./package.json
+COPY --from=build /prod/guildserver/drizzle ./drizzle
 COPY .env.production ./.env
-COPY --from=build /prod/dokploy/components.json ./components.json
-COPY --from=build /prod/dokploy/node_modules ./node_modules
+COPY --from=build /prod/guildserver/components.json ./components.json
+COPY --from=build /prod/guildserver/node_modules ./node_modules
 
 
 # Install docker

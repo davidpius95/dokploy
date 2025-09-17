@@ -1,6 +1,6 @@
-import type { apiRestoreBackup } from "@dokploy/server/db/schema";
-import type { Destination } from "@dokploy/server/services/destination";
-import type { Mariadb } from "@dokploy/server/services/mariadb";
+import type { apiRestoreBackup } from "@guildserver/server/db/schema";
+import type { Destination } from "@guildserver/server/services/destination";
+import type { Mariadb } from "@guildserver/server/services/mariadb";
 import type { z } from "zod";
 import { getS3Credentials } from "../backups/utils";
 import { execAsync, execAsyncRemote } from "../process/execAsync";

@@ -1,8 +1,8 @@
 import dns from "node:dns";
 import { promisify } from "node:util";
-import { db } from "@dokploy/server/db";
-import { generateRandomDomain } from "@dokploy/server/templates";
-import { manageDomain } from "@dokploy/server/utils/traefik/domain";
+import { db } from "@guildserver/server/db";
+import { generateRandomDomain } from "@guildserver/server/templates";
+import { manageDomain } from "@guildserver/server/utils/traefik/domain";
 import { TRPCError } from "@trpc/server";
 import { eq } from "drizzle-orm";
 import { type apiCreateDomain, domains } from "../db/schema";

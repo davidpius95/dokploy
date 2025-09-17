@@ -1,7 +1,7 @@
 import path from "node:path";
-import { member } from "@dokploy/server/db/schema";
-import type { BackupSchedule } from "@dokploy/server/services/backup";
-import { getAllServers } from "@dokploy/server/services/server";
+import { member } from "@guildserver/server/db/schema";
+import type { BackupSchedule } from "@guildserver/server/services/backup";
+import { getAllServers } from "@guildserver/server/services/server";
 import { eq } from "drizzle-orm";
 import { scheduleJob } from "node-schedule";
 import { db } from "../../db/index";
@@ -107,7 +107,7 @@ export const keepLatestNBackups = async (
 			backup.prefix,
 		);
 
-		// --include "*.sql.gz" or "*.zip" ensures nothing else other than the dokploy backup files are touched by rclone
+		// --include "*.sql.gz" or "*.zip" ensures nothing else other than the guildserver backup files are touched by rclone
 		const rcloneList = `rclone lsf ${rcloneFlags.join(" ")} --include "*${backup.databaseType === "web-server" ? ".zip" : ".sql.gz"}" ${backupFilesPath}`;
 		// when we pipe the above command with this one, we only get the list of files we want to delete
 		const sortAndPickUnwantedBackups = `sort -r | tail -n +$((${backup.keepLatestCount}+1)) | xargs -I{}`;

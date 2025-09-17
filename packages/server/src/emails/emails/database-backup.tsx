@@ -10,6 +10,10 @@ import {
 	Tailwind,
 	Text,
 } from "@react-email/components";
+import {
+	BRAND_NAME,
+	BRAND_SLUG,
+} from "@guildserver/server/constants";
 
 export type TemplateProps = {
 	projectName: string;
@@ -20,14 +24,15 @@ export type TemplateProps = {
 	date: string;
 };
 
-export const DatabaseBackupEmail = ({
-	projectName = "dokploy",
-	applicationName = "frontend",
-	databaseType = "postgres",
-	type = "success",
-	errorMessage,
-	date = "2023-05-01T00:00:00.000Z",
-}: TemplateProps) => {
+export const DatabaseBackupEmail = (props: TemplateProps) => {
+	const {
+		projectName = BRAND_SLUG,
+		applicationName = "frontend",
+		databaseType = "postgres",
+		type = "success",
+		errorMessage,
+		date = "2023-05-01T00:00:00.000Z",
+	} = props;
 	const previewText = `Database backup for ${applicationName} was ${type === "success" ? "successful ✅" : "failed ❌"}`;
 	return (
 		<Html>
@@ -50,11 +55,11 @@ export const DatabaseBackupEmail = ({
 						<Section className="mt-[32px]">
 							<Img
 								src={
-									"https://raw.githubusercontent.com/Dokploy/dokploy/refs/heads/canary/apps/dokploy/logo.png"
+									"https://raw.githubusercontent.com/GuildServer/guildserver/refs/heads/canary/apps/guildserver/logo.png"
 								}
 								width="100"
 								height="50"
-								alt="Dokploy"
+								alt={BRAND_NAME}
 								className="my-0 mx-auto"
 							/>
 						</Section>

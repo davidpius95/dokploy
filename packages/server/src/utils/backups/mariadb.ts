@@ -1,10 +1,10 @@
-import type { BackupSchedule } from "@dokploy/server/services/backup";
+import type { BackupSchedule } from "@guildserver/server/services/backup";
 import {
 	createDeploymentBackup,
 	updateDeploymentStatus,
-} from "@dokploy/server/services/deployment";
-import type { Mariadb } from "@dokploy/server/services/mariadb";
-import { findProjectById } from "@dokploy/server/services/project";
+} from "@guildserver/server/services/deployment";
+import type { Mariadb } from "@guildserver/server/services/mariadb";
+import { findProjectById } from "@guildserver/server/services/project";
 import { sendDatabaseBackupNotifications } from "../notifications/database-backup";
 import { execAsync, execAsyncRemote } from "../process/execAsync";
 import { getBackupCommand, getS3Credentials, normalizeS3Path } from "./utils";

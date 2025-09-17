@@ -16,7 +16,7 @@ build({
 	format: "esm",
 	plugins: [
 		alias({
-			"@dokploy/server": path.resolve(__dirname, "src"),
+			"@guildserver/server": path.resolve(__dirname, "src"),
 		}),
 	],
 	packages: "external",

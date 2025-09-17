@@ -14,14 +14,14 @@ import {
 	runMySqlBackup,
 	runPostgresBackup,
 	runVolumeBackup,
-} from "@dokploy/server";
-import { db } from "@dokploy/server/dist/db";
+} from "@guildserver/server";
+import { db } from "@guildserver/server/db";
 import {
 	backups,
 	schedules,
 	server,
 	volumeBackups,
-} from "@dokploy/server/dist/db/schema";
+} from "@guildserver/server/db/schema";
 import { and, eq } from "drizzle-orm";
 import { logger } from "./logger.js";
 import { scheduleJob } from "./queue.js";
@@ -173,7 +173,7 @@ export const initializeJobs = async () => {
 	});
 
 	const filteredSchedulesBasedOnServerStatus = schedulesResult.filter(
-		(schedule) => {
+		(schedule): boolean => {
 			if (schedule.server) {
 				return schedule.server.serverStatus === "active";
 			}
@@ -183,6 +183,7 @@ export const initializeJobs = async () => {
 			if (schedule.compose) {
 				return schedule.compose.server?.serverStatus === "active";
 			}
+			return false;
 		},
 	);
 
@@ -215,13 +216,14 @@ export const initializeJobs = async () => {
 	});
 
 	const filteredVolumeBackupsBasedOnServerStatus = volumeBackupsResult.filter(
-		(volumeBackup) => {
+		(volumeBackup): boolean => {
 			if (volumeBackup.application) {
 				return volumeBackup.application.server?.serverStatus === "active";
 			}
 			if (volumeBackup.compose) {
 				return volumeBackup.compose.server?.serverStatus === "active";
 			}
+			return false;
 		},
 	);
 
