@@ -1,3 +1,18 @@
+import {
+	CheckCircle2,
+	ExternalLink,
+	GlobeIcon,
+	InfoIcon,
+	Loader2,
+	PenBoxIcon,
+	RefreshCw,
+	Server,
+	Trash2,
+	XCircle,
+} from "lucide-react";
+import Link from "next/link";
+import { useState } from "react";
+import { toast } from "sonner";
 import { DialogAction } from "@/components/shared/dialog-action";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -15,21 +30,6 @@ import {
 	TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { api } from "@/utils/api";
-import {
-	CheckCircle2,
-	ExternalLink,
-	GlobeIcon,
-	InfoIcon,
-	Loader2,
-	PenBoxIcon,
-	RefreshCw,
-	Server,
-	Trash2,
-	XCircle,
-} from "lucide-react";
-import Link from "next/link";
-import { useState } from "react";
-import { toast } from "sonner";
 import { DnsHelperModal } from "./dns-helper-modal";
 import { AddDomain } from "./handle-domain";
 
@@ -40,6 +40,8 @@ export type ValidationState = {
 	resolvedIp?: string;
 	message?: string;
 	cdnProvider?: string;
+	resolvedHostname?: string;
+	hostnameMatches?: boolean;
 };
 
 export type ValidationStates = Record<string, ValidationState>;
@@ -120,6 +122,8 @@ export const ShowDomains = ({ id, type }: Props) => {
 					isValid: result.isValid,
 					error: result.error,
 					resolvedIp: result.resolvedIp,
+					resolvedHostname: result.resolvedHostname,
+					hostnameMatches: result.hostnameMatches,
 					cdnProvider: result.cdnProvider,
 					message: result.error && result.isValid ? result.error : undefined,
 				},
@@ -348,20 +352,21 @@ export const ShowDomains = ({ id, type }: Props) => {
 																		handleValidateDomain(item.host)
 																	}
 																>
-																	{validationState?.isLoading ? (
-																		<>
-																			<Loader2 className="size-3 mr-1 animate-spin" />
-																			Checking DNS...
-																		</>
-																	) : validationState?.isValid ? (
-																		<>
-																			<CheckCircle2 className="size-3 mr-1" />
-																			{validationState.message &&
-																			validationState.cdnProvider
-																				? `Behind ${validationState.cdnProvider}`
-																				: "DNS Valid"}
-																		</>
-																	) : validationState?.error ? (
+												{validationState?.isLoading ? (
+													<>
+														<Loader2 className="size-3 mr-1 animate-spin" />
+														Checking DNS...
+													</>
+												) : validationState?.isValid ? (
+													<>
+														<CheckCircle2 className="size-3 mr-1" />
+														{validationState.message
+															? validationState.message
+															: validationState.cdnProvider
+																? `Behind ${validationState.cdnProvider}`
+																: "DNS Valid"}
+													</>
+												) : validationState?.error ? (
 																		<>
 																			<XCircle className="size-3 mr-1" />
 																			{validationState.error}
@@ -374,18 +379,46 @@ export const ShowDomains = ({ id, type }: Props) => {
 																	)}
 																</Badge>
 															</TooltipTrigger>
-															<TooltipContent className="max-w-xs">
-																{validationState?.error ? (
-																	<div className="flex flex-col gap-1">
-																		<p className="font-medium text-red-500">
-																			Error:
-																		</p>
-																		<p>{validationState.error}</p>
-																	</div>
-																) : (
-																	"Click to validate DNS configuration"
-																)}
-															</TooltipContent>
+											<TooltipContent className="max-w-xs">
+												{validationState?.error ? (
+													<div className="flex flex-col gap-1">
+														<p className="font-medium text-red-500">
+															Error:
+														</p>
+														<p>{validationState.error}</p>
+														{validationState.resolvedIp && (
+															<p className="text-muted-foreground text-xs">
+																Resolved IP: {validationState.resolvedIp}
+															</p>
+														)}
+														{validationState.resolvedHostname && (
+															<p className="text-muted-foreground text-xs">
+																CNAME: {validationState.resolvedHostname}
+															</p>
+														)}
+													</div>
+												) : validationState?.resolvedIp || validationState?.resolvedHostname ? (
+													<div className="flex flex-col gap-1">
+														{validationState.resolvedIp && (
+															<p className="text-muted-foreground text-xs">
+																Resolved IP: {validationState.resolvedIp}
+															</p>
+														)}
+														{validationState.resolvedHostname && (
+															<p className="text-muted-foreground text-xs">
+																CNAME: {validationState.resolvedHostname}
+															</p>
+														)}
+														{validationState.hostnameMatches === false && (
+															<p className="text-red-500 text-xs">
+																CNAME does not match expected target
+															</p>
+														)}
+													</div>
+												) : (
+													"Click to validate DNS configuration"
+												)}
+											</TooltipContent>
 														</Tooltip>
 													</TooltipProvider>
 												</div>

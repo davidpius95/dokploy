@@ -1,3 +1,25 @@
+import {
+	createServer,
+	defaultCommand,
+	deleteServer,
+	findServerById,
+	findServersByUserId,
+	findUserById,
+	getPublicIpWithFallback,
+	haveActiveServices,
+	IS_CLOUD,
+	removeDeploymentsByServerId,
+	STRIPE_ENABLED,
+	serverAudit,
+	serverSetup,
+	serverValidate,
+	setupMonitoring,
+	updateServerById,
+} from "@guildserver/server";
+import { TRPCError } from "@trpc/server";
+import { observable } from "@trpc/server/observable";
+import { and, desc, eq, getTableColumns, isNotNull, sql } from "drizzle-orm";
+import { z } from "zod";
 import { updateServersBasedOnQuantity } from "@/pages/api/stripe/webhook";
 import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
 import { db } from "@/server/db";
@@ -17,28 +39,6 @@ import {
 	redis,
 	server,
 } from "@/server/db/schema";
-import {
-	IS_CLOUD,
-	STRIPE_ENABLED,
-	createServer,
-	defaultCommand,
-	deleteServer,
-	findServerById,
-	findServersByUserId,
-	findUserById,
-	getPublicIpWithFallback,
-	haveActiveServices,
-	removeDeploymentsByServerId,
-	serverAudit,
-	serverSetup,
-	serverValidate,
-	setupMonitoring,
-	updateServerById,
-} from "@guildserver/server";
-import { TRPCError } from "@trpc/server";
-import { observable } from "@trpc/server/observable";
-import { and, desc, eq, getTableColumns, isNotNull, sql } from "drizzle-orm";
-import { z } from "zod";
 
 export const serverRouter = createTRPCRouter({
 	create: protectedProcedure
@@ -47,7 +47,11 @@ export const serverRouter = createTRPCRouter({
 			try {
 				const user = await findUserById(ctx.user.ownerId);
 				const servers = await findServersByUserId(user.id);
-				if (IS_CLOUD && STRIPE_ENABLED && servers.length >= user.serversQuantity) {
+				if (
+					IS_CLOUD &&
+					STRIPE_ENABLED &&
+					servers.length >= user.serversQuantity
+				) {
 					throw new TRPCError({
 						code: "BAD_REQUEST",
 						message: "You cannot create more servers",

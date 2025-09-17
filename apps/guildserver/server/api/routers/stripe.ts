@@ -1,13 +1,14 @@
-import { WEBSITE_URL, getStripeItems } from "@/server/utils/stripe";
 import {
-	IS_CLOUD,
 	findServersByUserId,
 	findUserById,
+	IS_CLOUD,
+	STRIPE_ENABLED,
 	updateUser,
 } from "@guildserver/server";
 import { TRPCError } from "@trpc/server";
 import Stripe from "stripe";
 import { z } from "zod";
+import { getStripeItems, WEBSITE_URL } from "@/server/utils/stripe";
 import { adminProcedure, createTRPCRouter } from "../trpc";
 
 export const stripeRouter = createTRPCRouter({
@@ -91,10 +92,10 @@ export const stripeRouter = createTRPCRouter({
 		const user = await findUserById(ctx.user.id);
 
 		if (!user.stripeCustomerId) {
-			console.error(
-				"Stripe portal error: Missing stripeCustomerId for user",
-				{ userId: user.id, email: (user as any)?.email },
-			);
+			console.error("Stripe portal error: Missing stripeCustomerId for user", {
+				userId: user.id,
+				email: (user as any)?.email,
+			});
 			throw new TRPCError({
 				code: "BAD_REQUEST",
 				message: "Stripe Customer ID not found",
@@ -111,18 +112,17 @@ export const stripeRouter = createTRPCRouter({
 				userId: user.id,
 				stripeCustomerId,
 				websiteUrl: WEBSITE_URL,
-				mode:
-					process.env.STRIPE_SECRET_KEY?.startsWith("sk_live_")
-						? "live"
-						: "test",
+				mode: process.env.STRIPE_SECRET_KEY?.startsWith("sk_live_")
+					? "live"
+					: "test",
 			});
-            const session = await stripe.billingPortal.sessions.create({
-                customer: stripeCustomerId,
-                return_url: `${WEBSITE_URL}/dashboard/settings/billing`,
-                ...(process.env.STRIPE_PORTAL_CONFIGURATION_ID
-                    ? { configuration: process.env.STRIPE_PORTAL_CONFIGURATION_ID }
-                    : {}),
-            });
+			const session = await stripe.billingPortal.sessions.create({
+				customer: stripeCustomerId,
+				return_url: `${WEBSITE_URL}/dashboard/settings/billing`,
+				...(process.env.STRIPE_PORTAL_CONFIGURATION_ID
+					? { configuration: process.env.STRIPE_PORTAL_CONFIGURATION_ID }
+					: {}),
+			});
 			console.log("Stripe customer portal session created", {
 				sessionId: session.id,
 				urlPresent: Boolean(session.url),
@@ -140,7 +140,7 @@ export const stripeRouter = createTRPCRouter({
 		const user = await findUserById(ctx.user.ownerId);
 		const servers = await findServersByUserId(user.id);
 
-		if (!IS_CLOUD) {
+		if (!IS_CLOUD || !STRIPE_ENABLED) {
 			return true;
 		}
 

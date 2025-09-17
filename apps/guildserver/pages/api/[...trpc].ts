@@ -1,8 +1,8 @@
-import { appRouter } from "@/server/api/root";
-import { createTRPCContext } from "@/server/api/trpc";
 import { validateRequest } from "@guildserver/server";
 import { createOpenApiNextHandler } from "@guildserver/trpc-openapi";
 import type { NextApiRequest, NextApiResponse } from "next";
+import { appRouter } from "@/server/api/root";
+import { createTRPCContext } from "@/server/api/trpc";
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 	const { session, user } = await validateRequest(req);

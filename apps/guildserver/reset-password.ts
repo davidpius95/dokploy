@@ -1,5 +1,4 @@
-import { findAdmin } from "@guildserver/server";
-import { generateRandomPassword } from "@guildserver/server";
+import { findAdmin, generateRandomPassword } from "@guildserver/server";
 import { db } from "@guildserver/server/db";
 import { account } from "@guildserver/server/db/schema";
 import { eq } from "drizzle-orm";

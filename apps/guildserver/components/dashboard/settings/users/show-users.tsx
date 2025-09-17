@@ -1,3 +1,6 @@
+import { format } from "date-fns";
+import { Loader2, MoreHorizontal, Users } from "lucide-react";
+import { toast } from "sonner";
 import { DialogAction } from "@/components/shared/dialog-action";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -15,7 +18,6 @@ import {
 	DropdownMenuLabel,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { BRAND_NAME } from "@/lib/brand";
 import {
 	Table,
 	TableBody,
@@ -26,11 +28,8 @@ import {
 	TableRow,
 } from "@/components/ui/table";
 import { authClient } from "@/lib/auth-client";
+import { BRAND_NAME } from "@/lib/brand";
 import { api } from "@/utils/api";
-import { format } from "date-fns";
-import { MoreHorizontal, Users } from "lucide-react";
-import { Loader2 } from "lucide-react";
-import { toast } from "sonner";
 import { AddUserPermissions } from "./add-permissions";
 
 export const ShowUsers = () => {
@@ -63,8 +62,8 @@ export const ShowUsers = () => {
 								{data?.length === 0 ? (
 									<div className="flex flex-col items-center gap-3  min-h-[25vh] justify-center">
 										<Users className="size-8 self-center text-muted-foreground" />
-											<span className="text-base text-muted-foreground">
-												Invite users to your {BRAND_NAME} account
+										<span className="text-base text-muted-foreground">
+											Invite users to your {BRAND_NAME} account
 										</span>
 									</div>
 								) : (

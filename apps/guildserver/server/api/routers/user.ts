@@ -1,12 +1,12 @@
 import {
 	BRAND_NAME,
-	IS_CLOUD,
 	createApiKey,
 	findAdmin,
 	findNotificationById,
 	findOrganizationById,
 	findUserById,
 	getUserByToken,
+	IS_CLOUD,
 	removeUserById,
 	sendEmailNotification,
 	updateUser,
@@ -16,8 +16,8 @@ import {
 	account,
 	apiAssignPermissions,
 	apiFindOneToken,
-	apiUpdateUser,
 	apikey,
+	apiUpdateUser,
 	invitation,
 	member,
 } from "@guildserver/server/db/schema";

@@ -34,9 +34,9 @@ export const CreateSSHKey = () => {
 				const keys = await generateMutation.mutateAsync({
 					type: "rsa",
 				});
-					await mutateAsync({
-						name: cloudKeyName,
-						description: `Used on ${BRAND_NAME} Cloud`,
+				await mutateAsync({
+					name: cloudKeyName,
+					description: `Used on ${BRAND_NAME} Cloud`,
 					privateKey: keys.privateKey,
 					publicKey: keys.publicKey,
 					organizationId: "",

@@ -1,3 +1,15 @@
+import { zodResolver } from "@hookform/resolvers/zod";
+import {
+	DatabaseZap,
+	Info,
+	PenBoxIcon,
+	PlusCircle,
+	RefreshCw,
+} from "lucide-react";
+import { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+import { z } from "zod";
 import { AlertBlock } from "@/components/shared/alert-block";
 import { CodeEditor } from "@/components/shared/code-editor";
 import { Button } from "@/components/ui/button";
@@ -35,18 +47,6 @@ import {
 } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import { api } from "@/utils/api";
-import { zodResolver } from "@hookform/resolvers/zod";
-import {
-	DatabaseZap,
-	Info,
-	PenBoxIcon,
-	PlusCircle,
-	RefreshCw,
-} from "lucide-react";
-import { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
-import { toast } from "sonner";
-import { z } from "zod";
 import type { CacheType } from "../domains/handle-domain";
 
 export const commonCronExpressions = [
@@ -112,7 +112,7 @@ const formSchema = z
 interface Props {
 	id?: string;
 	scheduleId?: string;
-scheduleType?: "application" | "compose" | "server" | "guildserver-server";
+	scheduleType?: "application" | "compose" | "server" | "guildserver-server";
 }
 
 export const HandleSchedules = ({ id, scheduleId, scheduleType }: Props) => {
@@ -233,7 +233,8 @@ export const HandleSchedules = ({ id, scheduleId, scheduleType }: Props) => {
 			</DialogTrigger>
 			<DialogContent
 				className={cn(
-					scheduleTypeForm === "guildserver-server" || scheduleTypeForm === "server"
+					scheduleTypeForm === "guildserver-server" ||
+						scheduleTypeForm === "server"
 						? "sm:max-w-2xl"
 						: "sm:max-w-lg",
 				)}

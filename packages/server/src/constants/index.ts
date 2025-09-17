@@ -29,6 +29,23 @@ const resolveEnv = (...values: Array<string | undefined>) => {
 	return undefined;
 };
 
+const parseBooleanEnv = (
+	value: string | undefined,
+	defaultValue: boolean,
+) => {
+	if (value === undefined) {
+		return defaultValue;
+	}
+	const normalized = value.trim().toLowerCase();
+	if (["false", "0", "no", "off", ""].includes(normalized)) {
+		return false;
+	}
+	if (["true", "1", "yes", "on"].includes(normalized)) {
+		return true;
+	}
+	return defaultValue;
+};
+
 export const BRAND_WEBSITE_URL =
 	resolveEnv(process.env.BRAND_WEBSITE_URL, process.env.NEXT_PUBLIC_BRAND_WEBSITE_URL) ??
 	defaultWebsiteUrl;
@@ -41,14 +58,28 @@ export const BRAND_DOCS_URL =
 	resolveEnv(process.env.BRAND_DOCS_URL, process.env.NEXT_PUBLIC_BRAND_DOCS_URL) ??
 	defaultDocsUrl;
 
-export const IS_CLOUD = process.env.IS_CLOUD === "true";
-export const STRIPE_ENABLED = process.env.STRIPE_ENABLED !== "false"; // Default to true unless explicitly set to false
+export const IS_CLOUD = parseBooleanEnv(process.env.IS_CLOUD, false);
+export const STRIPE_ENABLED = parseBooleanEnv(process.env.STRIPE_ENABLED, true);
 
 export const paths = (isServer = false) => {
-  const BASE_PATH =
-    isServer || process.env.NODE_ENV === "production"
-      ? `/etc/${BRAND_SLUG}`
-      : path.join(process.cwd(), ".docker");
+  const forceLocalPaths = parseBooleanEnv(
+    process.env.DOKPLOY_FORCE_LOCAL_PATHS,
+    false,
+  );
+
+  const localRoot = normalize(process.env.DOKPLOY_BASE_PATH) ?? process.cwd();
+  const localBasePath = path.join(localRoot, ".docker");
+
+  const configuredRemoteBase = normalize(process.env.DOKPLOY_REMOTE_BASE_PATH);
+  const remoteBasePath = configuredRemoteBase && !configuredRemoteBase.startsWith("/tmp/")
+    ? configuredRemoteBase
+    : `/etc/${BRAND_SLUG}`;
+
+  const shouldUseRemotePaths =
+    !forceLocalPaths &&
+    (isServer || process.env.NODE_ENV === "production" || IS_CLOUD);
+
+  const BASE_PATH = shouldUseRemotePaths ? remoteBasePath : localBasePath;
   const MAIN_TRAEFIK_PATH = `${BASE_PATH}/traefik`;
   const DYNAMIC_TRAEFIK_PATH = `${MAIN_TRAEFIK_PATH}/dynamic`;
 

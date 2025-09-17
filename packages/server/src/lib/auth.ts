@@ -1,4 +1,5 @@
 import type { IncomingMessage } from "node:http";
+import { TLSSocket } from "node:tls";
 import * as bcrypt from "bcrypt";
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
@@ -354,11 +355,50 @@ export const validateRequest = async (request: IncomingMessage) => {
 	}
 
 	// If no API key, proceed with normal session validation
-	const session = await api.getSession({
-		headers: new Headers({
-			cookie: request.headers.cookie || "",
-		}),
-	});
+	let session;
+	try {
+    const headers = new Headers();
+    for (const [key, value] of Object.entries(request.headers)) {
+        if (!value) continue;
+        headers.append(
+            key,
+            Array.isArray(value) ? value.join(", ") : value,
+        );
+    }
+
+    const envBaseUrl = process.env.BETTER_AUTH_BASE_URL?.trim();
+    const inferredHost = headers.get("x-forwarded-host") || headers.get("host");
+    const inferredProtocol =
+        envBaseUrl?.split("://")[0] ||
+        headers.get("x-forwarded-proto") ||
+        headers.get("forwarded")?.split(";")?.find((part) =>
+            part.trim().startsWith("proto="),
+        )?.split("=")[1] ||
+        (request.socket instanceof TLSSocket ? "https" : "http");
+
+    const baseURL = envBaseUrl
+        ? envBaseUrl
+        : inferredHost
+        ? `${inferredHost.startsWith("http") ? "" : (inferredProtocol || "http") + "://"}${inferredHost}`
+        : undefined;
+
+    session = await api.getSession({
+        headers,
+        ...(baseURL
+            ? {
+                  fetchOptions: {
+                      baseURL,
+                  },
+              }
+            : {}),
+    });
+	} catch (error) {
+    console.warn("Failed to retrieve user session", error);
+		return {
+			session: null,
+			user: null,
+		};
+	}
 
 	if (!session?.session || !session.user) {
 		return {

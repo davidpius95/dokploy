@@ -1,20 +1,20 @@
 import http from "node:http";
-import { migration } from "@/server/db/migration";
 import {
-	IS_CLOUD,
 	createDefaultMiddlewares,
 	createDefaultServerTraefikConfig,
 	createDefaultTraefikConfig,
+	IS_CLOUD,
 	initCronJobs,
+	initializeNetwork,
 	initSchedules,
 	initVolumeBackupsCronJobs,
-	initializeNetwork,
 	sendGuildServerRestartNotifications,
 	sendPlatformRestartNotifications,
 	setupDirectories,
 } from "@guildserver/server";
 import { config } from "dotenv";
 import next from "next";
+import { migration } from "@/server/db/migration";
 import { setupDockerContainerLogsWebSocketServer } from "./wss/docker-container-logs";
 import { setupDockerContainerTerminalWebSocketServer } from "./wss/docker-container-terminal";
 import { setupDockerStatsMonitoringSocketServer } from "./wss/docker-stats";
@@ -44,21 +44,18 @@ void app.prepare().then(async () => {
 			setupDockerStatsMonitoringSocketServer(server);
 		}
 
+		await migration();
+
 		if (process.env.NODE_ENV === "production" && !IS_CLOUD) {
 			setupDirectories();
 			createDefaultMiddlewares();
 			await initializeNetwork();
 			createDefaultTraefikConfig();
 			createDefaultServerTraefikConfig();
-			await migration();
 			await initCronJobs();
 			await initSchedules();
 			await initVolumeBackupsCronJobs();
 			await sendPlatformRestartNotifications();
-		}
-
-		if (IS_CLOUD && process.env.NODE_ENV === "production") {
-			await migration();
 		}
 
 		server.listen(PORT, HOST);

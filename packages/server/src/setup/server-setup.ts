@@ -66,18 +66,27 @@ export const serverSetup = async (
 };
 
 export const defaultCommand = () => {
-	const bashCommand = `
+	const scriptBody = `
 set -e;
 DOCKER_VERSION=27.0.3
 OS_TYPE=$(grep -w "ID" /etc/os-release | cut -d "=" -f 2 | tr -d '"')
 SYS_ARCH=$(uname -m)
-CURRENT_USER=$USER
+ORIGINAL_USER=\${ORIGINAL_USER:-\${SUDO_USER:-$USER}}
+TARGET_USER="$ORIGINAL_USER"
 
-echo "Installing requirements for: OS: $OS_TYPE"
-if [ $EUID != 0 ]; then
-	echo "Please run this script as root or with sudo ❌"
-	exit
-fi
+timestamp() {
+	date -u '+%Y-%m-%d %H:%M:%S UTC'
+}
+
+log_step() {
+	printf '\n[%s] %s\n' "$(timestamp)" "$1"
+}
+
+log_substep() {
+	printf '  - %s\n' "$1"
+}
+
+log_step "Installing requirements for OS: $OS_TYPE"
 
 # Check if the OS is manjaro, if so, change it to arch
 if [ "$OS_TYPE" = "manjaro" ] || [ "$OS_TYPE" = "manjaro-arm" ]; then
@@ -122,12 +131,12 @@ arch | ubuntu | debian | raspbian | centos | fedora | rhel | ol | rocky | sles |
 	;;
 esac
 
-echo -e "---------------------------------------------"
-echo "| CPU Architecture  | $SYS_ARCH"
-echo "| Operating System  | $OS_TYPE $OS_VERSION"
-echo "| Docker            | $DOCKER_VERSION"
-echo -e "---------------------------------------------\n"
-echo -e "1. Installing required packages (curl, wget, git, jq, openssl). "
+log_step "Environment summary"
+log_substep "CPU Architecture: $SYS_ARCH"
+log_substep "Operating System: $OS_TYPE $OS_VERSION"
+log_substep "Docker Version Target: $DOCKER_VERSION"
+
+log_step "1. Installing required packages (curl, wget, git, jq, openssl)"
 
 command_exists() {
 	command -v "$@" > /dev/null 2>&1
@@ -135,47 +144,67 @@ command_exists() {
 
 ${installUtilities()}
 
-echo -e "2. Validating ports. "
+log_step "2. Validating ports"
 ${validatePorts()}
 
 
 
-echo -e "3. Installing RClone. "
+log_step "3. Installing RClone"
 ${installRClone()}
 
-echo -e "4. Installing Docker. "
+log_step "4. Installing Docker"
 ${installDocker()}
 
-echo -e "5. Setting up Docker Swarm"
+log_step "5. Setting up Docker Swarm"
 ${setupSwarm()}
 
-echo -e "6. Setting up Network"
+log_step "6. Setting up Docker network"
 ${setupNetwork()}
 
-echo -e "7. Setting up Directories"
+log_step "7. Setting up directories"
 ${setupMainDirectory()}
 ${setupDirectories()}
 
-echo -e "8. Setting up Traefik"
+log_step "8. Configuring Traefik"
 ${createTraefikConfig()}
 
-echo -e "9. Setting up Middlewares"
+log_step "9. Configuring Traefik middlewares"
 ${createDefaultMiddlewares()}
 
-echo -e "10. Setting up Traefik Instance"
+log_step "10. Deploying Traefik instance"
 ${createTraefikInstance()}
 
-echo -e "11. Installing Nixpacks"
+log_step "11. Installing Nixpacks"
 ${installNixpacks()}
 
-echo -e "12. Installing Buildpacks"
+log_step "12. Installing Buildpacks"
 ${installBuildpacks()}
 
-echo -e "13. Installing Railpack"
+log_step "13. Installing Railpack"
 ${installRailpack()}
+
+log_step "GuildServer dependencies installation completed"
 				`;
 
-	return bashCommand;
+	const rootWrapper = `
+ORIGINAL_USER=\${ORIGINAL_USER:-\${SUDO_USER:-$USER}}
+export ORIGINAL_USER
+if [ "$EUID" != 0 ]; then
+	if command -v sudo >/dev/null 2>&1; then
+		echo "Re-running script with sudo..."
+		sudo -E bash <<'GUILDSETUP'
+${scriptBody}
+GUILDSETUP
+		exit $?
+	else
+		echo "This script must be run as root or with sudo."
+		exit 1
+	fi
+fi
+`;
+
+	return `${rootWrapper}
+${scriptBody}`;
 };
 
 const installRequirements = async (
@@ -242,8 +271,11 @@ const setupDirectories = () => {
 	const directories = Object.values(paths(true));
 
 	const createDirsCommand = directories
-		.map((dir) => `mkdir -p "${dir}"`)
-		.join(" && ");
+		.map(
+			(dir) =>
+				`mkdir -p "${dir}"\nchown -R "$TARGET_USER:$TARGET_USER" "${dir}"`,
+		)
+		.join("\n");
 	const chmodCommand = `chmod 700 "${SSH_PATH}"`;
 
 	const command = `
@@ -255,16 +287,18 @@ const setupDirectories = () => {
 };
 
 const setupMainDirectory = () => `
-	# Check if the /etc/guildserver directory exists
-	if [ -d /etc/guildserver ]; then
-		echo "/etc/guildserver already exists ✅"
+	BASE_DIR="/etc/guildserver"
+	if [ -d "$BASE_DIR" ]; then
+		echo "$BASE_DIR already exists ✅"
 	else
-		# Create the /etc/guildserver directory
-		mkdir -p /etc/guildserver
-		chmod 777 /etc/guildserver
-
-		echo "Directory /etc/guildserver created ✅"
+		mkdir -p "$BASE_DIR"
+		echo "Directory $BASE_DIR created ✅"
 	fi
+	chown -R "$TARGET_USER:$TARGET_USER" "$BASE_DIR"
+	chmod 755 "$BASE_DIR"
+	mkdir -p "$BASE_DIR/traefik/dynamic"
+	chown -R "$TARGET_USER:$TARGET_USER" "$BASE_DIR/traefik"
+	chmod -R 755 "$BASE_DIR/traefik"
 `;
 
 export const setupSwarm = () => `
@@ -452,6 +486,7 @@ if ! [ -x "$(command -v docker)" ]; then
         "arch")
             pacman -Sy docker docker-compose --noconfirm >/dev/null 2>&1
             systemctl enable docker.service >/dev/null 2>&1
+            systemctl start docker.service >/dev/null 2>&1
             if ! [ -x "$(command -v docker)" ]; then
                 echo " - Failed to install Docker with pacman. Try to install it manually."
                 echo "   Please visit https://wiki.archlinux.org/title/docker for more information."
@@ -517,6 +552,15 @@ if ! [ -x "$(command -v docker)" ]; then
 
     esac
     echo " - Docker installed successfully."
+
+    if [ -n "$TARGET_USER" ] && [ "$TARGET_USER" != "root" ] && id "$TARGET_USER" >/dev/null 2>&1; then
+        if id -nG "$TARGET_USER" | grep -qw docker; then
+            echo " - User $TARGET_USER already in docker group."
+        else
+            usermod -aG docker "$TARGET_USER"
+            echo " - Added $TARGET_USER to docker group (log out/in required to apply)."
+        fi
+    fi
 else
     echo " - Docker is installed."
 fi
@@ -524,15 +568,18 @@ fi
 
 const createTraefikConfig = () => {
 	const config = getDefaultServerTraefikConfig();
+	const { MAIN_TRAEFIK_PATH, DYNAMIC_TRAEFIK_PATH } = paths(true);
+	const traefikConfigPath = path.join(MAIN_TRAEFIK_PATH, "traefik.yml");
+	const acmeJsonPath = path.join(DYNAMIC_TRAEFIK_PATH, "acme.json");
 
 	const command = `
-	if [ -f "/etc/guildserver/traefik/dynamic/acme.json" ]; then
-		chmod 600 "/etc/guildserver/traefik/dynamic/acme.json"
+	if [ -f "${acmeJsonPath}" ]; then
+		chmod 600 "${acmeJsonPath}"
 	fi
-	if [ -f "/etc/guildserver/traefik/traefik.yml" ]; then
+	if [ -f "${traefikConfigPath}" ]; then
 		echo "Traefik config already exists ✅"
 	else
-		echo "${config}" > /etc/guildserver/traefik/traefik.yml
+		echo "${config}" > "${traefikConfigPath}"
 	fi
 	`;
 
@@ -541,11 +588,13 @@ const createTraefikConfig = () => {
 
 const createDefaultMiddlewares = () => {
 	const config = getDefaultMiddlewares();
+	const { DYNAMIC_TRAEFIK_PATH } = paths(true);
+	const middlewaresPath = path.join(DYNAMIC_TRAEFIK_PATH, "middlewares.yml");
 	const command = `
-	if [ -f "/etc/guildserver/traefik/dynamic/middlewares.yml" ]; then
+	if [ -f "${middlewaresPath}" ]; then
 		echo "Middlewares config already exists ✅"
 	else
-		echo "${config}" > /etc/guildserver/traefik/dynamic/middlewares.yml
+		echo "${config}" > "${middlewaresPath}"
 	fi
 	`;
 	return command;
@@ -555,7 +604,7 @@ export const installRClone = () => `
     if command_exists rclone; then
 		echo "RClone already installed ✅"
 	else
-		curl https://rclone.org/install.sh | sudo bash
+		curl -fsSL https://rclone.org/install.sh | bash
 		RCLONE_VERSION=$(rclone --version | head -n 1 | awk '{print $2}' | sed 's/^v//')
 		echo "RClone version $RCLONE_VERSION installed ✅"
 	fi

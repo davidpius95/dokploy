@@ -93,9 +93,9 @@ test("Should apply redirect-to-https", () => {
 
 	const config: FileConfig = loadOrCreateConfig("guildserver");
 
-	expect(config.http?.routers?.["guildserver-router-app"]?.middlewares).toContain(
-		"redirect-to-https",
-	);
+	expect(
+		config.http?.routers?.["guildserver-router-app"]?.middlewares,
+	).toContain("redirect-to-https");
 });
 
 test("Should change only host when no certificate", () => {
@@ -103,7 +103,9 @@ test("Should change only host when no certificate", () => {
 
 	const config: FileConfig = loadOrCreateConfig("guildserver");
 
-	expect(config.http?.routers?.["guildserver-router-app-secure"]).toBeUndefined();
+	expect(
+		config.http?.routers?.["guildserver-router-app-secure"],
+	).toBeUndefined();
 });
 
 test("Should not touch config without host", () => {
@@ -126,7 +128,9 @@ test("Should remove websecure if https rollback to http", () => {
 
 	const config: FileConfig = loadOrCreateConfig("guildserver");
 
-	expect(config.http?.routers?.["guildserver-router-app-secure"]).toBeUndefined();
+	expect(
+		config.http?.routers?.["guildserver-router-app-secure"],
+	).toBeUndefined();
 	expect(
 		config.http?.routers?.["guildserver-router-app"]?.middlewares,
 	).not.toContain("redirect-to-https");

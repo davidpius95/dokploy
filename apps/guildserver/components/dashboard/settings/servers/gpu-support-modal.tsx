@@ -1,3 +1,4 @@
+import { useState } from "react";
 import {
 	Dialog,
 	DialogContent,
@@ -7,7 +8,6 @@ import {
 } from "@/components/ui/dialog";
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { BRAND_NAME } from "@/lib/brand";
-import { useState } from "react";
 import { GPUSupport } from "./gpu-support";
 
 export const GPUSupportModal = () => {

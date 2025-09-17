@@ -1,5 +1,12 @@
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Loader2, User } from "lucide-react";
+import { useTranslation } from "next-i18next";
+import { useEffect, useMemo, useState } from "react";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+import { z } from "zod";
 import { AlertBlock } from "@/components/shared/alert-block";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
 	Card,
@@ -23,13 +30,6 @@ import { Switch } from "@/components/ui/switch";
 import { BRAND_NAME } from "@/lib/brand";
 import { generateSHA256Hash, getFallbackAvatarInitials } from "@/lib/utils";
 import { api } from "@/utils/api";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2, User } from "lucide-react";
-import { useTranslation } from "next-i18next";
-import { useEffect, useMemo, useState } from "react";
-import { useForm } from "react-hook-form";
-import { toast } from "sonner";
-import { z } from "zod";
 import { Disable2FA } from "./disable-2fa";
 import { Enable2FA } from "./enable-2fa";
 

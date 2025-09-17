@@ -1,6 +1,6 @@
+import ReactMarkdown from "react-markdown";
 import { CodeEditor } from "@/components/shared/code-editor";
 import { BRAND_NAME } from "@/lib/brand";
-import ReactMarkdown from "react-markdown";
 import type { StepProps } from "./step-two";
 
 export const StepThree = ({ templateInfo }: StepProps) => {

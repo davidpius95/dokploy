@@ -769,7 +769,8 @@ export default function Page({ children }: Props) {
 
 	const pathname = usePathname();
 	const { data: auth } = api.user.get.useQuery();
-	const { data: guildserverVersion } = api.settings.getGuildServerVersion.useQuery();
+	const { data: guildserverVersion } =
+		api.settings.getGuildServerVersion.useQuery();
 
 	const includesProjects = pathname?.includes("/dashboard/project");
 	const { data: isCloud } = api.settings.isCloud.useQuery();

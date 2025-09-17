@@ -1,3 +1,5 @@
+import { FileIcon, Folder, Loader2, Workflow } from "lucide-react";
+import React from "react";
 import { AlertBlock } from "@/components/shared/alert-block";
 import {
 	Card,
@@ -8,8 +10,6 @@ import {
 } from "@/components/ui/card";
 import { Tree } from "@/components/ui/file-tree";
 import { api } from "@/utils/api";
-import { FileIcon, Folder, Loader2, Workflow } from "lucide-react";
-import React from "react";
 import { ShowTraefikFile } from "./show-traefik-file";
 
 interface Props {
@@ -42,8 +42,8 @@ export const ShowTraefikSystem = ({ serverId }: Props) => {
 							Traefik File System
 						</CardTitle>
 						<CardDescription>
-							Manage all the files and directories in {"'/etc/guildserver/traefik'"}
-							.
+							Manage all the files and directories in{" "}
+							{"'/etc/guildserver/traefik'"}.
 						</CardDescription>
 
 						<AlertBlock type="warning">

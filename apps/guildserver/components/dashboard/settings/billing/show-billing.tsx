@@ -1,3 +1,17 @@
+import { STRIPE_ENABLED } from "@guildserver/server/constants";
+import { loadStripe } from "@stripe/stripe-js";
+import clsx from "clsx";
+import {
+	AlertTriangle,
+	CheckIcon,
+	CreditCard,
+	Loader2,
+	MinusIcon,
+	PlusIcon,
+} from "lucide-react";
+import Link from "next/link";
+import { useState } from "react";
+import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -13,20 +27,6 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { BRAND_NAME } from "@/lib/brand";
 import { cn } from "@/lib/utils";
 import { api } from "@/utils/api";
-import { STRIPE_ENABLED } from "@guildserver/server/constants";
-import { loadStripe } from "@stripe/stripe-js";
-import clsx from "clsx";
-import {
-	AlertTriangle,
-	CheckIcon,
-	CreditCard,
-	Loader2,
-	MinusIcon,
-	PlusIcon,
-} from "lucide-react";
-import Link from "next/link";
-import { useState } from "react";
-import { toast } from "sonner";
 
 const stripePromise = loadStripe(
 	process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!,
@@ -56,12 +56,15 @@ export const ShowBilling = () => {
 								<CreditCard className="size-6 text-muted-foreground self-center" />
 								Billing
 							</CardTitle>
-							<CardDescription>Billing is disabled for this instance</CardDescription>
+							<CardDescription>
+								Billing is disabled for this instance
+							</CardDescription>
 						</CardHeader>
 						<CardContent className="space-y-4 py-8 border-t">
 							<div className="text-center">
 								<p className="text-muted-foreground">
-									Stripe billing has been disabled. You can use all features without any restrictions.
+									Stripe billing has been disabled. You can use all features
+									without any restrictions.
 								</p>
 							</div>
 						</CardContent>
@@ -157,11 +160,11 @@ export const ShowBilling = () => {
 								</span>
 								<Button className="rounded-full bg-[#5965F2] hover:bg-[#4A55E0] w-fit">
 									<Link
-											href="https://discord.gg/2tBnJ3jDJc"
-											aria-label={`${BRAND_NAME} community on Discord`}
-											target="_blank"
-											className="flex flex-row items-center gap-2 text-white"
-										>
+										href="https://discord.gg/2tBnJ3jDJc"
+										aria-label={`${BRAND_NAME} community on Discord`}
+										target="_blank"
+										className="flex flex-row items-center gap-2 text-white"
+									>
 										<svg
 											role="img"
 											className="h-6 w-6 fill-white"
@@ -312,19 +315,30 @@ export const ShowBilling = () => {
 																<Button
 																	variant="secondary"
 																	className="w-full"
-                            onClick={async () => {
-                                try {
-                                    const session = await createCustomerPortalSession();
-                                    const url = (session as any)?.url || (session as { url?: string })?.url;
-                                    if (url) {
-                                        window.open(url, "_blank", "noopener,noreferrer");
-                                    } else {
-                                        toast.error("Could not open Stripe portal. Please try again later.");
-                                    }
-                                } catch (e) {
-                                    toast.error("Failed to create Stripe portal session.");
-                                }
-                            }}
+																	onClick={async () => {
+																		try {
+																			const session =
+																				await createCustomerPortalSession();
+																			const url =
+																				(session as any)?.url ||
+																				(session as { url?: string })?.url;
+																			if (url) {
+																				window.open(
+																					url,
+																					"_blank",
+																					"noopener,noreferrer",
+																				);
+																			} else {
+																				toast.error(
+																					"Could not open Stripe portal. Please try again later.",
+																				);
+																			}
+																		} catch (e) {
+																			toast.error(
+																				"Failed to create Stripe portal session.",
+																			);
+																		}
+																	}}
 																>
 																	Manage Subscription
 																</Button>

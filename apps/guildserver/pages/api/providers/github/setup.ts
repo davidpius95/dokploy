@@ -1,9 +1,9 @@
-import { db } from "@/server/db";
-import { github } from "@/server/db/schema";
 import { createGithub } from "@guildserver/server";
 import { eq } from "drizzle-orm";
 import type { NextApiRequest, NextApiResponse } from "next";
 import { Octokit } from "octokit";
+import { db } from "@/server/db";
+import { github } from "@/server/db/schema";
 
 type Query = {
 	code: string;

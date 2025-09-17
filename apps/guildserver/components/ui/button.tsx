@@ -1,24 +1,25 @@
 import { Slot, Slottable } from "@radix-ui/react-slot";
-import { type VariantProps, cva } from "class-variance-authority";
-import * as React from "react";
-
-import { cn } from "@/lib/utils";
+import { cva, type VariantProps } from "class-variance-authority";
 import { Loader2 } from "lucide-react";
+import * as React from "react";
+import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-	"inline-flex items-center justify-center whitespace-nowrap select-none rounded-lg transition-all will-change-transform active:hover:scale-[0.98] active:hover:transform text-sm font-medium ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
+	"relative inline-flex items-center justify-center overflow-hidden whitespace-nowrap select-none rounded-xl text-sm font-medium transition-transform duration-300 ease-out will-change-transform ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-200 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-60 active:scale-[0.97]",
 	{
 		variants: {
 			variant: {
-				default: "bg-primary text-primary-foreground hover:bg-primary/90",
+				default: "btn-sky",
 				destructive:
-					"bg-destructive text-destructive-foreground hover:bg-destructive/70",
+					"bg-destructive text-destructive-foreground hover:bg-destructive/80",
 				outline:
-					"border border-input bg-background hover:bg-accent hover:text-accent-foreground",
+					"border border-sky-200/50 bg-background/90 backdrop-blur-sm text-foreground hover:border-sky-300 hover:bg-sky-50/80 hover:text-sky-800 dark:border-slate-600/60 dark:hover:border-sky-500/50 dark:hover:bg-slate-800/70",
 				secondary:
-					"bg-secondary text-secondary-foreground hover:bg-secondary/80",
-				ghost: "hover:bg-accent hover:text-accent-foreground",
+					"bg-secondary text-secondary-foreground shadow-[0_8px_25px_-18px_rgba(56,189,248,0.55)] hover:bg-secondary/75",
+				ghost:
+					"text-foreground hover:text-sky-600 hover:bg-sky-50/70 dark:hover:bg-slate-800/70",
 				link: "text-primary underline-offset-4 hover:underline",
+				sky: "btn-sky",
 			},
 			size: {
 				default: "h-10 px-4 py-2",

@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { ShowBilling } from "@/components/dashboard/settings/billing/show-billing";
 import {
 	Dialog,
@@ -7,7 +8,6 @@ import {
 } from "@/components/ui/dialog";
 import { BRAND_NAME } from "@/lib/brand";
 import { api } from "@/utils/api";
-import { useEffect, useState } from "react";
 
 export const ShowWelcomeGuildServer = () => {
 	const { data } = api.user.get.useQuery();

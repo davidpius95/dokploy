@@ -1,5 +1,17 @@
+import { IS_CLOUD, isAdminPresent } from "@guildserver/server";
+import { validateRequest } from "@guildserver/server/lib/auth";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { REGEXP_ONLY_DIGITS } from "input-otp";
+import type { GetServerSidePropsContext } from "next";
+import Link from "next/link";
+import { useRouter } from "next/router";
+import { type ReactElement, useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+import { z } from "zod";
 import { OnboardingLayout } from "@/components/layouts/onboarding-layout";
 import { AlertBlock } from "@/components/shared/alert-block";
+import { ErrorDialog } from "@/components/shared/error-dialog";
 import { Logo } from "@/components/shared/logo";
 import { Button } from "@/components/ui/button";
 import { CardContent, CardDescription } from "@/components/ui/card";
@@ -26,17 +38,6 @@ import {
 } from "@/components/ui/input-otp";
 import { Label } from "@/components/ui/label";
 import { authClient } from "@/lib/auth-client";
-import { IS_CLOUD, isAdminPresent } from "@guildserver/server";
-import { validateRequest } from "@guildserver/server/lib/auth";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { REGEXP_ONLY_DIGITS } from "input-otp";
-import type { GetServerSidePropsContext } from "next";
-import Link from "next/link";
-import { useRouter } from "next/router";
-import { type ReactElement, useState } from "react";
-import { useForm } from "react-hook-form";
-import { toast } from "sonner";
-import { z } from "zod";
 
 const LoginSchema = z.object({
 	email: z.string().email(),
@@ -65,6 +66,7 @@ export default function Home({
 	const [isBackupCodeLoading, setIsBackupCodeLoading] = useState(false);
 	const [isTwoFactor, setIsTwoFactor] = useState(false);
 	const [error, setError] = useState<string | null>(null);
+	const [errorDialogOpen, setErrorDialogOpen] = useState(false);
 	const [twoFactorCode, setTwoFactorCode] = useState("");
 	const [isBackupCodeModalOpen, setIsBackupCodeModalOpen] = useState(false);
 	const [backupCode, setBackupCode] = useState("");
@@ -77,6 +79,12 @@ export default function Home({
 			password: "",
 		},
 	});
+
+	useEffect(() => {
+		if (error) {
+			setErrorDialogOpen(true);
+		}
+	}, [error]);
 
 	const onSubmit = async (values: LoginForm) => {
 		setIsLoginLoading(true);
@@ -248,6 +256,24 @@ export default function Home({
 	};
 	return (
 		<>
+			<ErrorDialog
+				description="Please check the details you entered and try again."
+				details={error}
+				onOpenChange={(open) => {
+					setErrorDialogOpen(open);
+					if (!open) {
+						setError(null);
+					}
+				}}
+				onRetry={() => {
+					setErrorDialogOpen(false);
+				}}
+				onDismiss={() => {
+					setError(null);
+				}}
+				open={errorDialogOpen}
+				title="We couldn't sign you in"
+			/>
 			<div className="flex flex-col space-y-2 text-center">
 				<h1 className="text-2xl font-semibold tracking-tight">
 					<div className="flex flex-row items-center justify-center gap-2">

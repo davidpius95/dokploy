@@ -88,6 +88,32 @@ export const execFileAsync = async (
 	});
 };
 
+const normalizeCommandValue = (value?: string | null) =>
+	value ? value.trim() : undefined;
+
+const applyDockerOverride = (command: string) => {
+	const dockerOverride = normalizeCommandValue(
+		process.env.DOKPLOY_REMOTE_DOCKER_CMD,
+	);
+	if (!dockerOverride || dockerOverride === "docker") {
+		return command;
+	}
+	const dockerRegex = /(^|[\s;&(|`])docker(?=\s)/g;
+	return command.replace(dockerRegex, (_match, prefix) => {
+		return `${prefix ?? ""}${dockerOverride}`;
+	});
+};
+
+const applyShellPrefix = (command: string) => {
+	const prefix = normalizeCommandValue(
+		process.env.DOKPLOY_REMOTE_SHELL_PREFIX,
+	);
+	if (!prefix) {
+		return command;
+	}
+	return `${prefix} <<'DOKPLOY_REMOTE_CMD'\n${command}\nDOKPLOY_REMOTE_CMD`;
+};
+
 export const execAsyncRemote = async (
 	serverId: string | null,
 	command: string,
@@ -99,13 +125,15 @@ export const execAsyncRemote = async (
 
 	let stdout = "";
 	let stderr = "";
+	const resolvedCommand = applyShellPrefix(applyDockerOverride(command));
+
 	return new Promise((resolve, reject) => {
 		const conn = new Client();
 
 		sleep(1000);
 		conn
 			.once("ready", () => {
-				conn.exec(command, (err, stream) => {
+				conn.exec(resolvedCommand, (err, stream) => {
 					if (err) {
 						onData?.(err.message);
 						throw err;
@@ -118,7 +146,7 @@ export const execAsyncRemote = async (
 							} else {
 								reject(
 									new Error(
-										`Command exited with code ${code}. Stderr: ${stderr}, command: ${command}`,
+										`Command exited with code ${code}. Stderr: ${stderr}, command: ${resolvedCommand}`,
 									),
 								);
 							}

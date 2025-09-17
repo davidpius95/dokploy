@@ -1,5 +1,8 @@
 import type { ComposeSpecification } from "@guildserver/server";
-import { addSuffixToVolumesRoot, generateRandomHash } from "@guildserver/server";
+import {
+	addSuffixToVolumesRoot,
+	generateRandomHash,
+} from "@guildserver/server";
 import { load } from "js-yaml";
 import { expect, test } from "vitest";
 

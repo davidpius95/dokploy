@@ -1,11 +1,3 @@
-import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
-import {
-	apiCreateDomain,
-	apiFindCompose,
-	apiFindDomain,
-	apiFindOneApplication,
-	apiUpdateDomain,
-} from "@/server/db/schema";
 import {
 	createDomain,
 	findApplicationById,
@@ -24,7 +16,16 @@ import {
 	validateDomain,
 } from "@guildserver/server";
 import { TRPCError } from "@trpc/server";
+import { isIP } from "node:net";
 import { z } from "zod";
+import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
+import {
+	apiCreateDomain,
+	apiFindCompose,
+	apiFindDomain,
+	apiFindOneApplication,
+	apiUpdateDomain,
+} from "@/server/db/schema";
 
 export const domainRouter = createTRPCRouter({
 	create: protectedProcedure
@@ -237,6 +238,9 @@ export const domainRouter = createTRPCRouter({
 			}),
 		)
 		.mutation(async ({ input }) => {
-			return validateDomain(input.domain, input.serverIp);
+			const target = input.serverIp?.trim();
+			const expectedIp = target && isIP(target) ? target : undefined;
+			const expectedHostname = target && !isIP(target) ? target : undefined;
+			return validateDomain(input.domain, expectedIp, expectedHostname);
 		}),
 });

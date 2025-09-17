@@ -1,13 +1,12 @@
-import { ShowBilling } from "@/components/dashboard/settings/billing/show-billing";
-import { DashboardLayout } from "@/components/layouts/dashboard-layout";
-
-import { appRouter } from "@/server/api/root";
 import { IS_CLOUD, STRIPE_ENABLED } from "@guildserver/server/constants";
 import { validateRequest } from "@guildserver/server/lib/auth";
 import { createServerSideHelpers } from "@trpc/react-query/server";
 import type { GetServerSidePropsContext } from "next";
 import type { ReactElement } from "react";
 import superjson from "superjson";
+import { ShowBilling } from "@/components/dashboard/settings/billing/show-billing";
+import { DashboardLayout } from "@/components/layouts/dashboard-layout";
+import { appRouter } from "@/server/api/root";
 
 const Page = () => {
 	return <ShowBilling />;

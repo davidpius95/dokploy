@@ -1,5 +1,8 @@
 import type { ComposeSpecification } from "@guildserver/server";
-import { addSuffixToSecretsRoot, generateRandomHash } from "@guildserver/server";
+import {
+	addSuffixToSecretsRoot,
+	generateRandomHash,
+} from "@guildserver/server";
 import { load } from "js-yaml";
 import { expect, test } from "vitest";
 

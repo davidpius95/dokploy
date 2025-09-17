@@ -1,3 +1,18 @@
+import { defineStepper } from "@stepperize/react";
+import {
+	BookIcon,
+	Code2,
+	Database,
+	GitMerge,
+	Globe,
+	Plug,
+	Puzzle,
+	Users,
+} from "lucide-react";
+import Link from "next/link";
+import { useRouter } from "next/router";
+import React, { useEffect, useState } from "react";
+import ConfettiExplosion from "react-confetti-explosion";
 import { GithubIcon } from "@/components/icons/data-tools-icons";
 import { AlertBlock } from "@/components/shared/alert-block";
 import { Button } from "@/components/ui/button";
@@ -10,15 +25,12 @@ import {
 	DialogTitle,
 } from "@/components/ui/dialog";
 import { Separator } from "@/components/ui/separator";
-import { defineStepper } from "@stepperize/react";
-import { BookIcon, Puzzle } from "lucide-react";
-import { Code2, Database, GitMerge, Globe, Plug, Users } from "lucide-react";
-import Link from "next/link";
-import { useRouter } from "next/router";
-import { useEffect, useState } from "react";
-import React from "react";
-import ConfettiExplosion from "react-confetti-explosion";
-import { BRAND_DOCS_URL, BRAND_GITHUB_URL, BRAND_NAME, BRAND_SLUG } from "@/lib/brand";
+import {
+	BRAND_DOCS_URL,
+	BRAND_GITHUB_URL,
+	BRAND_NAME,
+	BRAND_SLUG,
+} from "@/lib/brand";
 import { CreateServer } from "./create-server";
 import { CreateSSHKey } from "./create-ssh-key";
 import { Setup } from "./setup";
@@ -82,9 +94,9 @@ export const WelcomeSuscription = () => {
 						Welcome To {BRAND_NAME} Cloud 🎉
 					</DialogTitle>
 					<DialogDescription className="text-center max-w-xl mx-auto">
-						Thank you for choosing {BRAND_NAME} Cloud! 🚀 We're excited to have you
-						onboard. Before you dive in, you'll need to configure your remote
-						server to unlock all the features we offer.
+						Thank you for choosing {BRAND_NAME} Cloud! 🚀 We're excited to have
+						you onboard. Before you dive in, you'll need to configure your
+						remote server to unlock all the features we offer.
 					</DialogDescription>
 				</DialogHeader>
 				<div className="grid gap-4">

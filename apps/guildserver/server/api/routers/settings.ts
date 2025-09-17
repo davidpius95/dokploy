@@ -1,4 +1,5 @@
 import {
+	BRAND_NAME,
 	canAccessToTraefikFiles,
 	checkGPUStatus,
 	cleanStoppedContainers,
@@ -10,7 +11,6 @@ import {
 	execAsync,
 	findServerById,
 	findUserById,
-	BRAND_NAME,
 	getGuildServerImage,
 	getGuildServerImageTag,
 	getLogCleanupStatus,
@@ -528,7 +528,7 @@ export const settingsRouter = createTRPCRouter({
 			});
 
 			openApiDocument.info = {
-					title: `${BRAND_NAME} API`,
+				title: `${BRAND_NAME} API`,
 				description: "Endpoints for guildserver",
 				version: "1.0.0",
 			};

@@ -1,20 +1,4 @@
-import { slugify } from "@/lib/slug";
-import { db } from "@/server/db";
 import {
-	apiCreateCompose,
-	apiDeleteCompose,
-	apiFetchServices,
-	apiFindCompose,
-	apiRandomizeCompose,
-	apiUpdateCompose,
-	compose as composeTable,
-} from "@/server/db/schema";
-import type { DeploymentJob } from "@/server/queues/queue-types";
-import { cleanQueuesByCompose, myQueue } from "@/server/queues/queueSetup";
-import { deploy } from "@/server/utils/deploy";
-import { generatePassword } from "@/templates/utils";
-import {
-	IS_CLOUD,
 	addDomainToCompose,
 	addNewService,
 	checkServiceAccess,
@@ -33,6 +17,7 @@ import {
 	findServerById,
 	findUserById,
 	getComposeContainer,
+	IS_CLOUD,
 	loadServices,
 	randomizeComposeFile,
 	randomizeIsolatedDeploymentComposeFile,
@@ -57,6 +42,21 @@ import _ from "lodash";
 import { nanoid } from "nanoid";
 import { parse } from "toml";
 import { z } from "zod";
+import { slugify } from "@/lib/slug";
+import { db } from "@/server/db";
+import {
+	apiCreateCompose,
+	apiDeleteCompose,
+	apiFetchServices,
+	apiFindCompose,
+	apiRandomizeCompose,
+	apiUpdateCompose,
+	compose as composeTable,
+} from "@/server/db/schema";
+import type { DeploymentJob } from "@/server/queues/queue-types";
+import { cleanQueuesByCompose, myQueue } from "@/server/queues/queueSetup";
+import { deploy } from "@/server/utils/deploy";
+import { generatePassword } from "@/templates/utils";
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
 
 export const composeRouter = createTRPCRouter({
@@ -581,11 +581,18 @@ export const composeRouter = createTRPCRouter({
 	getTags: protectedProcedure
 		.input(z.object({ baseUrl: z.string().optional() }))
 		.query(async ({ input }) => {
-			const githubTemplates = await fetchTemplatesList(input.baseUrl);
-
-			const allTags = githubTemplates.flatMap((template) => template.tags);
-			const uniqueTags = _.uniq(allTags);
-			return uniqueTags;
+			try {
+				const githubTemplates = await fetchTemplatesList(input.baseUrl);
+				const allTags = githubTemplates.flatMap((template) => template.tags);
+				const uniqueTags = _.uniq(allTags);
+				return uniqueTags;
+			} catch (error) {
+				console.warn(
+					"Failed to fetch template tags from GitHub, returning empty tag list:",
+					error,
+				);
+				return [];
+			}
 		}),
 	disconnectGitProvider: protectedProcedure
 		.input(apiFindCompose)

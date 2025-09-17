@@ -1,6 +1,7 @@
 const rawBrandName = process.env.NEXT_PUBLIC_BRAND_NAME?.trim();
 const fallbackBrandName = "GuildServer";
-const brandName = rawBrandName && rawBrandName.length > 0 ? rawBrandName : fallbackBrandName;
+const brandName =
+	rawBrandName && rawBrandName.length > 0 ? rawBrandName : fallbackBrandName;
 
 const rawBrandSlug = process.env.NEXT_PUBLIC_BRAND_SLUG?.trim();
 const inferredBrandSlug = brandName
@@ -9,7 +10,8 @@ const inferredBrandSlug = brandName
 	.replace(/(^-|-$)/g, "");
 
 export const BRAND_NAME = brandName;
-export const BRAND_SLUG = rawBrandSlug && rawBrandSlug.length > 0 ? rawBrandSlug : inferredBrandSlug;
+export const BRAND_SLUG =
+	rawBrandSlug && rawBrandSlug.length > 0 ? rawBrandSlug : inferredBrandSlug;
 
 const defaultWebsiteUrl = "https://guildserver.com";
 const defaultGithubUrl = "https://github.com/GuildServer/guildserver";

@@ -1,6 +1,8 @@
 export const WEBSITE_URL =
 	process.env.PUBLIC_APP_URL ||
-	(process.env.NODE_ENV === "development" ? "http://localhost:3000" : process.env.SITE_URL);
+	(process.env.NODE_ENV === "development"
+		? "http://localhost:3000"
+		: process.env.SITE_URL);
 
 const BASE_PRICE_MONTHLY_ID = process.env.BASE_PRICE_MONTHLY_ID!; // $4.00
 

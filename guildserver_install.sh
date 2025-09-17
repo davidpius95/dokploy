@@ -5,23 +5,41 @@ set -e
 DOCKER_VERSION=27.0.3
 OS_TYPE=$(grep -w "ID" /etc/os-release | cut -d "=" -f 2 | tr -d '"')
 SYS_ARCH=$(uname -m)
-CURRENT_USER=$USER
+ORIGINAL_USER=${ORIGINAL_USER:-${SUDO_USER:-$USER}}
+TARGET_USER=$ORIGINAL_USER
+export ORIGINAL_USER
 
-echo "Installing requirements for: OS: $OS_TYPE"
+timestamp() {
+	date -u '+%Y-%m-%d %H:%M:%S UTC'
+}
+
+log_step() {
+	printf '\n[%s] %s\n' "$(timestamp)" "$1"
+}
+
+log_substep() {
+	printf '  - %s\n' "$1"
+}
+
+log_step "Installing requirements for OS: $OS_TYPE"
 
 # --- Root escalation fix ---
 if [ "$EUID" != 0 ]; then
-    if command -v sudo >/dev/null 2>&1; then
-        echo "Re-running script with passwordless sudo..."
-        if [ -f "$0" ]; then
-            # Running from a saved file
-            exec sudo -n -E bash "$0" "$@"
+	if command -v sudo >/dev/null 2>&1; then
+		log_substep "Re-running script with sudo..."
+        if [ -n "${BASH_SOURCE[0]}" ] && [ -f "${BASH_SOURCE[0]}" ]; then
+            # Script executed directly or sourced; use the real path when available
+            exec sudo -E bash "${BASH_SOURCE[0]}" "$@"
+        elif [ -f "$0" ] && [ "$0" != "bash" ] && [ "$0" != "/bin/bash" ]; then
+            # Fallback to $0 when it points at an actual script path
+            exec sudo -E bash "$0" "$@"
         else
-            # Running from a pipe (stdin)
-            exec sudo -n -E bash -s -- "$@"
+            echo "Unable to determine script path for sudo re-execution."
+            echo "Please re-run this installer as root: e.g. curl ... | sudo bash"
+            exit 1
         fi
-    else
-        echo "This script must be run as root or with sudo."
+	else
+		log_substep "This script must be run as root or with sudo."
         exit 1
     fi
 fi
@@ -52,12 +70,12 @@ arch | ubuntu | debian | raspbian | centos | fedora | rhel | ol | rocky | sles |
     ;;
 esac
 
-echo -e "---------------------------------------------"
-echo "| CPU Architecture  | $SYS_ARCH"
-echo "| Operating System  | $OS_TYPE $OS_VERSION"
-echo "| Docker            | $DOCKER_VERSION"
-echo -e "---------------------------------------------\n"
-echo -e "1. Installing required packages (curl, wget, git, jq, openssl). "
+log_step "Environment summary"
+log_substep "CPU Architecture: $SYS_ARCH"
+log_substep "Operating System: $OS_TYPE $OS_VERSION"
+log_substep "Docker Version Target: $DOCKER_VERSION"
+
+log_step "1. Installing required packages (curl, wget, git, jq, openssl)"
 
 command_exists() { command -v "$@" > /dev/null 2>&1; }
 
@@ -93,20 +111,20 @@ sles | opensuse-leap | opensuse-tumbleweed)
     ;;
 esac
 
-echo -e "2. Validating ports. "
+log_step "2. Validating ports"
 if ss -tulnp | grep ':80 ' >/dev/null; then echo "Something is already running on port 80" >&2; fi
 if ss -tulnp | grep ':443 ' >/dev/null; then echo "Something is already running on port 443" >&2; fi
 
-echo -e "3. Installing RClone. "
+log_step "3. Installing RClone"
 if command_exists rclone; then
     echo "RClone already installed ✅"
 else
-    curl https://rclone.org/install.sh | sudo bash
+    curl -fsSL https://rclone.org/install.sh | bash
     RCLONE_VERSION=$(rclone --version | head -n 1 | awk '{print $2}' | sed 's/^v//')
     echo "RClone version $RCLONE_VERSION installed ✅"
 fi
 
-echo -e "4. Installing Docker. "
+log_step "4. Installing Docker"
 if [ -x "$(command -v snap)" ]; then
     if snap list docker >/dev/null 2>&1; then
         echo "Docker installed via snap is not supported. Remove it first."
@@ -137,6 +155,7 @@ if ! [ -x "$(command -v docker)" ]; then
         "arch")
             pacman -Sy docker docker-compose --noconfirm >/dev/null 2>&1
             systemctl enable docker.service >/dev/null 2>&1
+            systemctl start docker.service >/dev/null 2>&1
             ;;
         "amzn")
             dnf install docker -y >/dev/null 2>&1
@@ -159,6 +178,15 @@ if ! [ -x "$(command -v docker)" ]; then
             ;;
     esac
     echo " - Docker installed successfully."
+
+    if [ -n "$TARGET_USER" ] && [ "$TARGET_USER" != "root" ] && id "$TARGET_USER" >/dev/null 2>&1; then
+        if id -nG "$TARGET_USER" | grep -qw docker; then
+            echo " - User $TARGET_USER already in docker group."
+        else
+            usermod -aG docker "$TARGET_USER"
+            echo " - Added $TARGET_USER to docker group (log out/in required to apply)."
+        fi
+    fi
 else
     echo " - Docker is installed."
 fi
@@ -166,7 +194,7 @@ fi
 # (The rest of the original script continues unchanged — swarm setup, network creation, Traefik, Nixpacks, Buildpacks, Railpack, etc.)
 
 
-echo -e "5. Setting up Docker Swarm"
+log_step "5. Setting up Docker Swarm"
 
 		# Check if the node is already part of a Docker Swarm
 		if docker info | grep -q 'Swarm: active'; then
@@ -224,7 +252,7 @@ echo -e "5. Setting up Docker Swarm"
 		fi
 	
 
-echo -e "6. Setting up Network"
+log_step "6. Setting up Docker network"
 
 	# Check if the guildserver-network already exists
 	if docker network ls | grep -q 'guildserver-network'; then
@@ -240,7 +268,7 @@ echo -e "6. Setting up Network"
 	fi
 
 
-echo -e "7. Setting up Directories"
+log_step "7. Setting up directories"
 
 	# Check if the /etc/guildserver directory exists
 	if [ -d /etc/guildserver ]; then
@@ -258,7 +286,7 @@ echo -e "7. Setting up Directories"
 	chmod 700 "/etc/guildserver/ssh"
 	
 
-echo -e "8. Setting up Traefik"
+log_step "8. Configuring Traefik"
 
 	if [ -f "/etc/guildserver/traefik/dynamic/acme.json" ]; then
 		chmod 600 "/etc/guildserver/traefik/dynamic/acme.json"
@@ -300,7 +328,7 @@ certificatesResolvers:
 	fi
 	
 
-echo -e "9. Setting up Middlewares"
+log_step "9. Configuring Traefik middlewares"
 
 	if [ -f "/etc/guildserver/traefik/dynamic/middlewares.yml" ]; then
 		echo "Middlewares config already exists ✅"
@@ -315,7 +343,7 @@ echo -e "9. Setting up Middlewares"
 	fi
 	
 
-echo -e "10. Setting up Traefik Instance"
+log_step "10. Deploying Traefik instance"
 
 	    # Check if dokpyloy-traefik exists
 		if docker service inspect guildserver-traefik > /dev/null 2>&1; then
@@ -335,7 +363,7 @@ echo -e "10. Setting up Traefik Instance"
 		fi
 	
 
-echo -e "11. Installing Nixpacks"
+log_step "11. Installing Nixpacks"
 
 	if command_exists nixpacks; then
 		echo "Nixpacks already installed ✅"
@@ -346,7 +374,7 @@ echo -e "11. Installing Nixpacks"
 	fi
 
 
-echo -e "12. Installing Buildpacks"
+log_step "12. Installing Buildpacks"
 
 	SUFFIX=""
 	if [ "$SYS_ARCH" = "aarch64" ] || [ "$SYS_ARCH" = "arm64" ]; then
@@ -361,7 +389,7 @@ echo -e "12. Installing Buildpacks"
 	fi
 
 
-echo -e "13. Installing Railpack"
+log_step "13. Installing Railpack"
 
 	if command_exists railpack; then
 		echo "Railpack already installed ✅"
@@ -370,3 +398,5 @@ echo -e "13. Installing Railpack"
 		bash -c "$(curl -fsSL https://railpack.com/install.sh)"
 		echo "Railpack version $RAILPACK_VERSION installed ✅"
 	fi
+
+log_step "GuildServer dependencies installation completed"

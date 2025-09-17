@@ -2,20 +2,23 @@ import { drizzle } from "drizzle-orm/postgres-js";
 import { migrate } from "drizzle-orm/postgres-js/migrator";
 import postgres from "postgres";
 
-const connectionString = process.env.DATABASE_URL!;
+export const migration = async () => {
+	const connectionString = process.env.DATABASE_URL;
+	if (!connectionString) {
+		console.warn("DATABASE_URL is not set. Skipping migrations.");
+		return;
+	}
 
-const sql = postgres(connectionString, { max: 1 });
-const db = drizzle(sql);
+	const sql = postgres(connectionString, { max: 1 });
+	const db = drizzle(sql);
 
-export const migration = async () =>
-	await migrate(db, { migrationsFolder: "drizzle" })
-		.then(() => {
-			console.log("Migration complete");
-			sql.end();
-		})
-		.catch((error) => {
-			console.log("Migration failed", error);
-		})
-		.finally(() => {
-			sql.end();
-		});
+	try {
+		await migrate(db, { migrationsFolder: "drizzle" });
+		console.log("Migration complete");
+	} catch (error) {
+		console.log("Migration failed", error);
+		throw error;
+	} finally {
+		await sql.end();
+	}
+};

@@ -1,3 +1,5 @@
+import { ServerIcon } from "lucide-react";
+import { useTranslation } from "next-i18next";
 import {
 	Card,
 	CardContent,
@@ -6,8 +8,6 @@ import {
 	CardTitle,
 } from "@/components/ui/card";
 import { api } from "@/utils/api";
-import { ServerIcon } from "lucide-react";
-import { useTranslation } from "next-i18next";
 import { ShowGuildServerActions } from "./servers/actions/show-guildserver-actions";
 import { ShowStorageActions } from "./servers/actions/show-storage-actions";
 import { ShowTraefikActions } from "./servers/actions/show-traefik-actions";
@@ -18,7 +18,8 @@ export const WebServer = () => {
 	const { t } = useTranslation("settings");
 	const { data } = api.user.get.useQuery();
 
-	const { data: guildserverVersion } = api.settings.getGuildServerVersion.useQuery();
+	const { data: guildserverVersion } =
+		api.settings.getGuildServerVersion.useQuery();
 
 	return (
 		<div className="w-full">

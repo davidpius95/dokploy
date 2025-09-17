@@ -50,21 +50,23 @@ This README documents the setup and configuration of GuildServer on your local d
 
 4. **Run the Application**
    ```bash
-   DATABASE_URL=postgres://guildserver:amukds4wi9001583845717ad2@localhost:5432/guildserver \
-   NODE_ENV=development \
-   PORT=3000 \
-   HOST=0.0.0.0 \
-   IS_CLOUD=false \
-   PUBLIC_APP_URL=http://localhost:3000 \
-   STRIPE_ENABLED=false \
-   SMTP_SERVER=127.0.0.1 \
-   SMTP_PORT=1025 \
-   SMTP_USERNAME= \
-   SMTP_PASSWORD= \
-   SMTP_FROM_ADDRESS="GuildServer <no-reply@example.com>" \
-   pnpm run guildserver:dev
-   ```
+DATABASE_URL=postgres://guildserver:amukds4wi9001583845717ad2@localhost:5432/guildserver \
+NODE_ENV=development \
+PORT=3000 \
+HOST=0.0.0.0 \
+IS_CLOUD=false \
+PUBLIC_APP_URL=http://localhost:3000 \
+STRIPE_ENABLED=false \
+SMTP_SERVER=127.0.0.1 \
+SMTP_PORT=1025 \
+SMTP_USERNAME= \
+SMTP_PASSWORD= \
+SMTP_FROM_ADDRESS="GuildServer <no-reply@example.com>" \
+```
+   # Start GuildServer in development mode
+pnpm run guildserver:dev
 
+```
 5. **Access the Application**
    - Open your browser and navigate to: **http://localhost:3000**
    - Login with your admin credentials
@@ -244,6 +246,12 @@ INSERT INTO server (
 | `IS_CLOUD` | Multi-tenant mode | Yes | false |
 | `PUBLIC_APP_URL` | Public base URL | Yes | http://localhost:3000 |
 | `STRIPE_ENABLED` | Enable billing | No | true |
+| `SERVER_URL` | Deployments service base URL | Yes | http://localhost:4000 |
+| `API_KEY` | Shared secret between GuildServer and deployments service | Yes | dev-guildserver-key |
+| `DOKPLOY_FORCE_LOCAL_PATHS` | Force every path to use the local `.docker` directory (rarely needed) | No | false |
+| `DOKPLOY_REMOTE_BASE_PATH` | Base directory to use on remote servers (defaults to `/etc/${BRAND_SLUG}`) | No | - |
+| `DOKPLOY_REMOTE_DOCKER_CMD` | Override docker binary for remote commands (e.g. `sudo docker`) | No | docker |
+| `DOKPLOY_REMOTE_SHELL_PREFIX` | Optional shell prefix executed before remote commands (e.g. `sudo -n bash`) | No | - |
 | `SMTP_SERVER` | Outbound SMTP host | No | 127.0.0.1 |
 | `SMTP_PORT` | Outbound SMTP port | No | 1025 |
 | `SMTP_USERNAME` | SMTP username (if required) | No | - |
@@ -271,7 +279,11 @@ INSERT INTO server (
 # Start services
 docker start guildserver-redis guildserver-postgres
 
-# Run application
+# Run supporting services
+# (requires Redis, DATABASE_URL, DOKPLOY_REMOTE_BASE_PATH, and optionally DOKPLOY_REMOTE_DOCKER_CMD in apps/api/.env for remote docker access)
+pnpm --filter @guildserver/api run dev
+
+# Run application (in a new terminal)
 pnpm run guildserver:dev
 ```
 

@@ -1,3 +1,5 @@
+import { format } from "date-fns";
+import { useEffect, useState } from "react";
 import { GithubIcon } from "@/components/icons/data-tools-icons";
 import { Button } from "@/components/ui/button";
 import { CardContent } from "@/components/ui/card";
@@ -10,11 +12,9 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
-import { BRAND_NAME } from "@/lib/brand";
 import { authClient } from "@/lib/auth-client";
+import { BRAND_NAME } from "@/lib/brand";
 import { api } from "@/utils/api";
-import { format } from "date-fns";
-import { useEffect, useState } from "react";
 
 export const AddGithubProvider = () => {
 	const [isOpen, setIsOpen] = useState(false);

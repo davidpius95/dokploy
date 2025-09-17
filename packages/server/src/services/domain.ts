@@ -142,32 +142,31 @@ export const getDomainHost = (domain: Domain) => {
 };
 
 const resolveDns = promisify(dns.resolve4);
+const resolveCname = promisify(dns.resolveCname);
+const normalizeHostname = (value: string) => value.replace(/\.$/, "").toLowerCase();
 
 export const validateDomain = async (
 	domain: string,
 	expectedIp?: string,
+	expectedHostname?: string,
 ): Promise<{
 	isValid: boolean;
 	resolvedIp?: string;
 	error?: string;
 	isCloudflare?: boolean;
 	cdnProvider?: string;
+	resolvedHostname?: string;
+	hostnameMatches?: boolean;
 }> => {
 	try {
-		// Remove protocol and path if present
 		const cleanDomain = domain.replace(/^https?:\/\//, "").split("/")[0];
-
-		// Resolve the domain to get its IP
 		const ips = await resolveDns(cleanDomain || "");
-
 		const resolvedIps = ips.map((ip) => ip.toString());
 
-		// Check if any IP belongs to a CDN provider
 		const cdnProvider = ips
 			.map((ip) => detectCDNProvider(ip))
 			.find((provider) => provider !== null);
 
-		// If behind a CDN, we consider it valid but inform the user
 		if (cdnProvider) {
 			return {
 				isValid: true,
@@ -177,27 +176,74 @@ export const validateDomain = async (
 			};
 		}
 
-		// If we have an expected IP, validate against it
-		if (expectedIp) {
-			return {
-				isValid: resolvedIps.includes(expectedIp),
-				resolvedIp: resolvedIps.join(", "),
-				error: !resolvedIps.includes(expectedIp)
-					? `Domain resolves to ${resolvedIps.join(", ")} but should point to ${expectedIp}`
-					: undefined,
-			};
+		let resolvedHostname: string | undefined;
+		let hostnameMatches: boolean | undefined;
+		if (expectedHostname) {
+			try {
+				const cnameRecords = await resolveCname(cleanDomain);
+				if (cnameRecords.length > 0) {
+					resolvedHostname = cnameRecords[0];
+					const normalizedResolved = normalizeHostname(resolvedHostname);
+					const normalizedExpected = normalizeHostname(expectedHostname);
+					hostnameMatches =
+						normalizedResolved === normalizedExpected ||
+						normalizedResolved.endsWith(`.${normalizedExpected}`);
+				}
+			} catch (error) {
+				const code = (error as NodeJS.ErrnoException).code;
+				if (code && code !== "ENODATA" && code !== "ENOTFOUND") {
+					throw error;
+				}
+			}
 		}
 
-		// If no expected IP, just return the resolved IP
+		const errors: string[] = [];
+		let comparisonIps: string[] | undefined;
+
+		if (expectedIp) {
+			comparisonIps = [expectedIp];
+		}
+
+		if (!expectedIp && expectedHostname) {
+			try {
+				const hostnameIps = await resolveDns(expectedHostname);
+				comparisonIps = hostnameIps.map((ip) => ip.toString());
+			} catch (error) {
+				const code = (error as NodeJS.ErrnoException).code;
+				if (code && (code === "ENODATA" || code === "ENOTFOUND")) {
+					errors.push(`Unable to resolve expected host ${expectedHostname}`);
+				} else if (code) {
+					throw error;
+				}
+			}
+		}
+
+		if (comparisonIps && comparisonIps.length > 0) {
+			const matchesIp = resolvedIps.some((ip) => comparisonIps?.includes(ip));
+			if (!matchesIp) {
+				errors.push(
+					`Domain resolves to ${resolvedIps.join(", ")} but should point to ${comparisonIps.join(", ")}`,
+				);
+			}
+		}
+
+		if (expectedHostname && hostnameMatches === false) {
+			errors.push(
+				`Domain CNAME resolves to ${resolvedHostname ?? "(none)"} but should point to ${expectedHostname}`,
+			);
+		}
+
 		return {
-			isValid: true,
+			isValid: errors.length === 0,
 			resolvedIp: resolvedIps.join(", "),
+			resolvedHostname,
+			hostnameMatches,
+			error: errors[0],
 		};
 	} catch (error) {
 		return {
 			isValid: false,
-			error:
-				error instanceof Error ? error.message : "Failed to resolve domain",
+			error: error instanceof Error ? error.message : "Failed to resolve domain",
 		};
 	}
 };

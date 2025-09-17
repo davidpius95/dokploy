@@ -1,9 +1,9 @@
-import { ShowRequests } from "@/components/dashboard/requests/show-requests";
-import { DashboardLayout } from "@/components/layouts/dashboard-layout";
 import { IS_CLOUD } from "@guildserver/server/constants";
 import { validateRequest } from "@guildserver/server/lib/auth";
 import type { GetServerSidePropsContext } from "next";
 import type { ReactElement } from "react";
+import { ShowRequests } from "@/components/dashboard/requests/show-requests";
+import { DashboardLayout } from "@/components/layouts/dashboard-layout";
 
 export default function Requests() {
 	return <ShowRequests />;

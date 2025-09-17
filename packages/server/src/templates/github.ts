@@ -52,13 +52,32 @@ interface TemplateMetadata {
 /**
  * Fetches the list of available templates from meta.json
  */
+const DEFAULT_TEMPLATES_BASE_URL =
+	"https://raw.githubusercontent.com/dokploy/templates/main";
+
+const normalizeBaseUrl = (baseUrl?: string | null): string => {
+	if (!baseUrl) {
+		return DEFAULT_TEMPLATES_BASE_URL;
+	}
+
+	const trimmed = baseUrl.trim();
+	if (!trimmed) {
+		return DEFAULT_TEMPLATES_BASE_URL;
+	}
+
+	return trimmed.replace(/\/+$/, "");
+};
+
 export async function fetchTemplatesList(
-	baseUrl = "https://templates.guildserver.com",
+	baseUrl?: string | null,
 ): Promise<TemplateMetadata[]> {
 	try {
-		const response = await fetch(`${baseUrl}/meta.json`);
+		const resolvedBaseUrl = normalizeBaseUrl(baseUrl);
+		const response = await fetch(`${resolvedBaseUrl}/meta.json`);
 		if (!response.ok) {
-			throw new Error(`Failed to fetch templates: ${response.statusText}`);
+			throw new Error(
+				`Failed to fetch templates from ${resolvedBaseUrl}: ${response.status} ${response.statusText}`,
+			);
 		}
 		const templates = (await response.json()) as TemplateMetadata[];
 		return templates.map((template) => ({
@@ -81,13 +100,14 @@ export async function fetchTemplatesList(
  */
 export async function fetchTemplateFiles(
 	templateId: string,
-	baseUrl = "https://templates.guildserver.com",
+	baseUrl?: string | null,
 ): Promise<{ config: CompleteTemplate; dockerCompose: string }> {
 	try {
+		const resolvedBaseUrl = normalizeBaseUrl(baseUrl);
 		// Fetch both files in parallel
 		const [templateYmlResponse, dockerComposeResponse] = await Promise.all([
-			fetch(`${baseUrl}/blueprints/${templateId}/template.toml`),
-			fetch(`${baseUrl}/blueprints/${templateId}/docker-compose.yml`),
+			fetch(`${resolvedBaseUrl}/blueprints/${templateId}/template.toml`),
+			fetch(`${resolvedBaseUrl}/blueprints/${templateId}/docker-compose.yml`),
 		]);
 
 		if (!templateYmlResponse.ok || !dockerComposeResponse.ok) {

@@ -1,3 +1,16 @@
+import type { IUpdateData } from "@guildserver/server/index";
+import {
+	Bug,
+	Download,
+	Info,
+	RefreshCcw,
+	Server,
+	Sparkles,
+	Stars,
+} from "lucide-react";
+import Link from "next/link";
+import { useState } from "react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
 	Dialog,
@@ -13,19 +26,6 @@ import {
 } from "@/components/ui/tooltip";
 import { BRAND_GITHUB_URL, BRAND_NAME } from "@/lib/brand";
 import { api } from "@/utils/api";
-import type { IUpdateData } from "@guildserver/server/index";
-import {
-	Bug,
-	Download,
-	Info,
-	RefreshCcw,
-	Server,
-	Sparkles,
-	Stars,
-} from "lucide-react";
-import Link from "next/link";
-import { useState } from "react";
-import { toast } from "sonner";
 import { ToggleAutoCheckUpdates } from "./toggle-auto-check-updates";
 import { UpdateWebServer } from "./update-webserver";
 
@@ -48,7 +48,8 @@ export const UpdateServer = ({
 	);
 	const { mutateAsync: getUpdateData, isLoading } =
 		api.settings.getUpdateData.useMutation();
-	const { data: platformVersion } = api.settings.getGuildServerVersion.useQuery();
+	const { data: platformVersion } =
+		api.settings.getGuildServerVersion.useQuery();
 	const { data: releaseTag } = api.settings.getReleaseTag.useQuery();
 	const [latestVersion, setLatestVersion] = useState(
 		updateData?.latestVersion ?? "",

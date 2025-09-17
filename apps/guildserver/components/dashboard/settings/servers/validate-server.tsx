@@ -1,3 +1,5 @@
+import { Loader2, PcCase, RefreshCw } from "lucide-react";
+import { useState } from "react";
 import { AlertBlock } from "@/components/shared/alert-block";
 import { Button } from "@/components/ui/button";
 import {
@@ -9,8 +11,6 @@ import {
 } from "@/components/ui/card";
 import { BRAND_NAME } from "@/lib/brand";
 import { api } from "@/utils/api";
-import { Loader2, PcCase, RefreshCw } from "lucide-react";
-import { useState } from "react";
 import { StatusRow } from "./gpu-support";
 
 interface Props {
