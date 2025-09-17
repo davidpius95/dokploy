@@ -143,7 +143,8 @@ export const getDomainHost = (domain: Domain) => {
 
 const resolveDns = promisify(dns.resolve4);
 const resolveCname = promisify(dns.resolveCname);
-const normalizeHostname = (value: string) => value.replace(/\.$/, "").toLowerCase();
+const normalizeHostname = (value: string | undefined) =>
+	(value ?? "").replace(/\.$/, "").toLowerCase();
 
 export const validateDomain = async (
 	domain: string,
@@ -179,15 +180,17 @@ export const validateDomain = async (
 		let resolvedHostname: string | undefined;
 		let hostnameMatches: boolean | undefined;
 		if (expectedHostname) {
+			const targetHostname = expectedHostname ?? "";
 			try {
-				const cnameRecords = await resolveCname(cleanDomain);
+				const cnameRecords = await resolveCname(cleanDomain || "");
 				if (cnameRecords.length > 0) {
-					resolvedHostname = cnameRecords[0];
-					const normalizedResolved = normalizeHostname(resolvedHostname);
-					const normalizedExpected = normalizeHostname(expectedHostname);
-					hostnameMatches =
-						normalizedResolved === normalizedExpected ||
-						normalizedResolved.endsWith(`.${normalizedExpected}`);
+					const actualHostname = cnameRecords[0] ?? "";
+					if (actualHostname) {
+						resolvedHostname = actualHostname;
+						const normalizedResolved = normalizeHostname(actualHostname);
+					const normalizedExpected = normalizeHostname(targetHostname);
+					hostnameMatches = normalizedResolved === normalizedExpected || normalizedResolved.endsWith(`.${normalizedExpected}`);
+					}
 				}
 			} catch (error) {
 				const code = (error as NodeJS.ErrnoException).code;
@@ -205,13 +208,16 @@ export const validateDomain = async (
 		}
 
 		if (!expectedIp && expectedHostname) {
+			const targetHostname = expectedHostname ?? "";
 			try {
-				const hostnameIps = await resolveDns(expectedHostname);
-				comparisonIps = hostnameIps.map((ip) => ip.toString());
+				if (targetHostname) {
+					const hostnameIps = await resolveDns(targetHostname);
+					comparisonIps = hostnameIps.map((ip) => ip.toString());
+				}
 			} catch (error) {
 				const code = (error as NodeJS.ErrnoException).code;
 				if (code && (code === "ENODATA" || code === "ENOTFOUND")) {
-					errors.push(`Unable to resolve expected host ${expectedHostname}`);
+					errors.push(`Unable to resolve expected host ${targetHostname}`);
 				} else if (code) {
 					throw error;
 				}
